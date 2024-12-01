@@ -1,7 +1,7 @@
 const express = require('express');
-const { Incident } = require('../models');
+const incidentController = require('../controllers/incident');
 const router = express.Router();
 
-// Define incident routes here
+router.get('/org/:orgIdentifier/incidents', incidentController.getIncidentsByOrg);
 
 module.exports = router;

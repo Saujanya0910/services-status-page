@@ -64,7 +64,48 @@ const createOrganization = async (req, res) => {
   }
 };
 
+/**
+ * Get organization details by identifier (UUID or name)
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+const getOrgByIdentifier = async (req, res) => {
+  try {
+    const { orgIdentifier } = req.params;
+    if (!orgIdentifier) {
+      return res.status(400).json({ error: 'Organization identifier is required' });
+    }
+
+    const organization = await Organization.findOne({
+      attributes: ['uuid', 'name', 'createdAt'],
+      where: {
+        [Op.or]: [
+          { uuid: orgIdentifier.trim().toLowerCase() },
+          { name: { [Op.like]: orgIdentifier.trim().toLowerCase() } }
+        ]
+      },
+      include: {
+        model: User,
+        attributes: ['uuid', 'email', 'name', 'role'],
+        where: { isActive: true },
+        required: false
+      }
+    });
+
+    if (!organization) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
+
+    delete organization.dataValues.Users;
+    return res.json(organization);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
 module.exports = {
   getOrganizationByUuid,
-  createOrganization
+  createOrganization,
+  getOrgByIdentifier
 };

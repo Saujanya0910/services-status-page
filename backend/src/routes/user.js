@@ -1,5 +1,6 @@
 const express = require('express');
 const { User } = require('../models');
+const { saveUser } = require('../controllers/user');
 const router = express.Router();
 
 // Get current user
@@ -26,5 +27,8 @@ router.put('/me', async (req, res) => {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 });
+
+// Save user
+router.post('/user', saveUser);
 
 module.exports = router;

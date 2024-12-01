@@ -1,18 +1,10 @@
 const express = require('express');
-const { Organization, User } = require('../models');
+const { Organization } = require('../models');
+const orgController = require('../controllers/organization');
 const router = express.Router();
 
 // Get organization details
-router.get('/:id', async (req, res) => {
-  try {
-    const organization = await Organization.findByPk(req.params.id, {
-      include: [User],
-    });
-    res.json(organization);
-  } catch (error) {
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+router.get('/org/:orgIdentifier', orgController.getOrgByIdentifier);
 
 // Create organization
 router.post('/', async (req, res) => {

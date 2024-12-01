@@ -9,9 +9,9 @@ const router = express.Router();
 
 // checkJwt
 
-router.use('/users', userRoutes);
-router.use('/organizations', organizationRoutes);
-router.use('/services', serviceRoutes);
-router.use('/incidents', incidentRoutes);
+router.use(userRoutes);
+router.use(organizationRoutes);
+router.use(serviceRoutes);
+router.use(incidentRoutes);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-const { Service, Organization } = require('../models');
+const { Service, Organization, Incident } = require('../models');
 const { Op } = require('sequelize');
 
 /**
@@ -33,6 +33,44 @@ const getServicesByOrg = async (req, res) => {
 
     res.json(organization.Services);
   } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+/**
+ * Get all incidents of a service by service ID
+ * @param {import('express').Request} req 
+ * @param {import('express').Response} res 
+ */
+const getIncidentsByService = async (req, res) => {
+  try {
+    const { serviceIdentifier } = req.params;
+    if (!serviceIdentifier) {
+      return res.status(400).json({ error: 'Service ID is required' });
+    }
+
+    const service = await Service.findOne({ 
+      where: {
+        [Op.or]: [
+          { uuid: serviceIdentifier },
+          { name: serviceIdentifier }
+        ]
+      },
+      include: {
+        model: Incident,
+        attributes: { exclude: ['createdAt', 'updatedAt', 'serviceId', 'isActive'] },
+        where: { isActive: true }
+      }
+    });
+
+    if (!service) {
+      return res.status(404).json({ error: 'Service not found' });
+    }
+
+    res.json(service.Incidents);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -64,6 +102,7 @@ const addService = async (req, res) => {
 
     res.status(201).json(service);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -95,6 +134,7 @@ const updateService = async (req, res) => {
 
     res.json(service);
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
@@ -121,12 +161,14 @@ const deleteService = async (req, res) => {
 
     res.status(204).send();
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
 
 module.exports = {
   getServicesByOrg,
+  getIncidentsByService,
   addService,
   updateService,
   deleteService

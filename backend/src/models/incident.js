@@ -51,7 +51,7 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.NOW,
     },
     serviceId: {
-      type: DataTypes.UUID,
+      type: DataTypes.INTEGER,
       allowNull: false,
       references: {
         model: 'Service',

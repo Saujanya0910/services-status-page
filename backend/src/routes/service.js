@@ -1,7 +1,8 @@
 const express = require('express');
-const { Service } = require('../models');
+const serviceController = require('../controllers/service');
 const router = express.Router();
 
-// Define service routes here
+router.get('/org/:orgIdentifier/services', serviceController.getServicesByOrg);
+router.get('/service/:serviceIdentifier/incidents', serviceController.getIncidentsByService);
 
 module.exports = router;
