@@ -22,7 +22,7 @@ export function AddServiceDialog({ open, onOpenChange }: AddServiceDialogProps) 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newService = {
-      id: crypto.randomUUID(),
+      uuid: crypto.randomUUID(),
       name,
       description,
       status: 'operational' as const,

@@ -26,7 +26,7 @@ export const useStore = create<AppState>((set) => ({
   updateServiceStatus: (serviceId, status) =>
     set((state) => ({
       services: state.services.map((service) =>
-        service.id === serviceId
+        service.uuid === serviceId
           ? { ...service, status, updatedAt: new Date() }
           : service
       ),
