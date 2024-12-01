@@ -1,0 +1,26 @@
+{
+  "name": "services-status-page",
+  "private": true,
+  "version": "1.0.0",
+  "config": {
+    "NODE_ENV": "development"
+  },
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "frontend:start": "cd ./frontend && yarn start",
+    "backend:start": "cd ./backend && yarn start",
+    "frontend:dev": "cd ./frontend && yarn dev",
+    "backend:dev": "cd ./backend && yarn dev",
+    "frontend:build": "cd ./frontend && yarn build",
+    "backend:build": "cd ./backend && yarn build",
+    "frontend:lint": "cd ./frontend && yarn lint",
+    "backend:lint": "cd ./backend && yarn lint"
+  },
+  "devDependencies": {
+    "eslint": "^9.9.1",
+    "typescript": "^5.5.3"
+  }
+}
