@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '../store';
 import { LogOut, Settings, Bell } from 'lucide-react';
 
@@ -8,6 +8,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
+  const { orgName } = useParams();
   const navigate = useNavigate();
   const { currentUser, setCurrentUser } = useStore();
 
@@ -22,9 +23,12 @@ export function Layout({ children }: LayoutProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16">
             <div className="flex">
-              <div className="flex-shrink-0 flex items-center">
-                <Bell className="h-8 w-8 text-indigo-600" />
-                <span className="ml-2 text-xl font-bold text-gray-900">StatusPage</span>
+              <div
+                className="flex-shrink-0 flex items-center cursor-pointer"
+                onClick={() => navigate(`/${orgName ?? ''}/status`)}
+              >
+              <Bell className="h-8 w-8 text-indigo-600" />
+              <span className="ml-2 text-xl font-bold text-gray-900">StatusPage</span>
               </div>
             </div>
             

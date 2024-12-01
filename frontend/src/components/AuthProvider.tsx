@@ -1,7 +1,9 @@
 import { createContext, useContext, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
-import { Auth0Provider, useAuth0 } from '@auth0/auth0-react';
+import { useAuth0, Auth0Provider } from '@auth0/auth0-react';
+import * as apiService from '../services/api'; // Import apiService
+import { User } from '@/types';
 
 interface AuthContextType {
   login: () => void;
@@ -13,27 +15,48 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
-  const { setCurrentUser, isAuthenticated } = useStore();
+  const { organization, setCurrentUser } = useStore();
   const { loginWithRedirect, logout, user, isAuthenticated: auth0Authenticated } = useAuth0();
 
   useEffect(() => {
+    const saveUserToBackend = async (user: (User & { sub?: string })) => {
+      try {
+        const response = await apiService.saveUser({
+          name: user.name,
+          email: user.email,
+          sub: user.sub,
+          orgIdentifier: organization.name,
+        });
+        setCurrentUser(response.data);
+      } catch (error) {
+        console.error('Failed to save user to backend:', error);
+      }
+    };
+
     if (auth0Authenticated && user) {
       const mockUser = {
         uuid: user.sub,
         email: user.email,
         name: user.name,
         role: 'admin' as const,
-        organizationId: '1',
+        organizationId: organization.name,
       };
       setCurrentUser(mockUser);
-      navigate('/admin');
+      saveUserToBackend(mockUser);
+      navigate(`/${organization.name}/dashboard`);
     }
-  }, [auth0Authenticated, user, setCurrentUser, navigate]);
+  }, [auth0Authenticated, user, setCurrentUser, navigate, organization.name]);
 
   return (
-    <AuthContext.Provider value={{ login: loginWithRedirect, logout: () => logout({ returnTo: window.location.origin }), isAuthenticated: auth0Authenticated }}>
-      {children}
-    </AuthContext.Provider>
+    <Auth0Provider
+      domain={import.meta.env.VITE_AUTH0_DOMAIN}
+      clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
+      redirectUri={`${import.meta.env.VITE_APP_URL}`}
+    >
+      <AuthContext.Provider value={{ login: loginWithRedirect, logout: () => logout({ returnTo: window.location.origin }), isAuthenticated: auth0Authenticated }}>
+        {children}
+      </AuthContext.Provider>
+    </Auth0Provider>
   );
 }
 

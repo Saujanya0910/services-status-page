@@ -1,7 +1,11 @@
-import React from 'react';
+import { useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useStore } from '../store';
 import { format } from 'date-fns';
 import { CheckCircle, AlertCircle, XCircle } from 'lucide-react';
+import * as apiService from '../services/api';
+import { Button } from '../components/ui/button'; // Import Button component
+import { toast } from 'react-toastify'; // Import toast
 
 const statusIcons = {
   operational: <CheckCircle className="h-6 w-6 text-green-500" />,
@@ -18,7 +22,50 @@ const statusText = {
 };
 
 export function PublicStatusPage() {
-  const { services, incidents } = useStore();
+  const { orgName } = useParams();
+  const navigate = useNavigate();
+  const { services, incidents, organization, setServices, setIncidents, setOrganization } = useStore();
+
+  useEffect(() => {
+    if (!orgName) {
+      navigate('/page-not-found');
+      return;
+    }
+
+    const fetchOrg = async () => {
+      try {
+        const response = await apiService.fetchOrganization(orgName);
+        // console.log("fetchOrg() response: ", response);
+        if (!response.data) {
+          toast.error('Failed to fetch organization data');
+          navigate('/page-not-found');
+          return;
+        }
+        setOrganization(response.data);
+      } catch (error) {
+        console.error('Failed to fetch org:', error);
+        toast.error('Failed to fetch organization data');
+        navigate('/page-not-found');
+      }
+    }
+
+    const fetchServicesAndIncidents = async () => {
+      try {
+        const [servicesResponse, incidentsResponse] = await Promise.all([
+          apiService.fetchServices(orgName),
+          apiService.fetchIncidents(orgName),
+        ]);
+
+        setServices(servicesResponse);
+        setIncidents(incidentsResponse);
+      } catch (error) {
+        console.error('Failed to fetch services and incidents:', error);
+        toast.error('Failed to fetch services and incidents');
+      }
+    };
+
+    fetchOrg().then(() => fetchServicesAndIncidents());
+  }, [orgName, setServices, setIncidents, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
@@ -26,8 +73,11 @@ export function PublicStatusPage() {
         <div className="text-center">
           <h1 className="text-3xl font-bold text-gray-900">System Status</h1>
           <p className="mt-3 text-xl text-gray-500">
-            Current status of our services
+            Current status of services at {orgName}
           </p>
+          <Button onClick={() => navigate(`/${orgName}/login`)} className="mt-6">
+            Login / Signup
+          </Button>
         </div>
 
         <div className="mt-12">
@@ -41,18 +91,18 @@ export function PublicStatusPage() {
                   <li key={service.id} className="px-4 py-4 sm:px-6">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center">
-                        {statusIcons[service.status]}
+                        {statusIcons[service.status ?? 'operational']}
                         <div className="ml-3">
                           <p className="text-sm font-medium text-gray-900">
                             {service.name}
                           </p>
                           <p className="text-sm text-gray-500">
-                            {statusText[service.status]}
+                            {statusText[service.status ?? 'operational']}
                           </p>
                         </div>
                       </div>
                       <div className="text-sm text-gray-500">
-                        Updated {format(service.updatedAt, 'MMM d, yyyy HH:mm')}
+                        Updated {format(service.updatedAt || new Date(), 'MMM d, yyyy HH:mm')}
                       </div>
                     </div>
                   </li>

@@ -1,44 +1,47 @@
-import React, { useState } from 'react';
-import { useStore } from '../store';
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from './ui/dialog';
-import { Button } from './ui/button';
 
-interface AddServiceDialogProps {
+import React, { useState, useEffect } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
+import { Button } from '../ui/button';
+import { Service } from '@/types';
+
+interface ServiceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  service: Service | null;
+  onSave: (service: Service) => void;
 }
 
-export function AddServiceDialog({ open, onOpenChange }: AddServiceDialogProps) {
+export function ServiceDialog({ open, onOpenChange, service, onSave }: ServiceDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const { addService } = useStore();
+
+  useEffect(() => {
+    if (service) {
+      setName(service.name || '');
+      setDescription(service.description || '');
+    } else {
+      setName('');
+      setDescription('');
+    }
+  }, [service]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const newService = {
-      uuid: crypto.randomUUID(),
+      ...service,
       name,
       description,
-      status: 'operational' as const,
+      status: service?.status || 'operational',
       updatedAt: new Date(),
     };
-    addService(newService);
-    setName('');
-    setDescription('');
-    onOpenChange(false);
+    onSave(newService);
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Add New Service</DialogTitle>
+          <DialogTitle>{service ? 'Edit Service' : 'Add Service'}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -71,7 +74,7 @@ export function AddServiceDialog({ open, onOpenChange }: AddServiceDialogProps) 
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
-            <Button type="submit">Add Service</Button>
+            <Button type="submit">{service ? 'Update Service' : 'Add Service'}</Button>
           </DialogFooter>
         </form>
       </DialogContent>

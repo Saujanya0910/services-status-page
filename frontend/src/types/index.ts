@@ -1,5 +1,14 @@
 export type ServiceStatus = 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
 
+export interface Organization {
+  id?: number;
+  uuid?: string;
+  name?: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+  isActive?: boolean;
+}
+
 export interface Service {
   id?: number;
   uuid?: string;
@@ -7,6 +16,7 @@ export interface Service {
   description?: string;
   status?: ServiceStatus;
   updatedAt?: Date;
+  isActive?: boolean;
 }
 
 export interface Incident {
@@ -20,6 +30,7 @@ export interface Incident {
   updatedAt?: Date;
   serviceIds?: string[];
   updates?: IncidentUpdate[];
+  isActive?: boolean;
 }
 
 export interface IncidentUpdate {
@@ -28,6 +39,7 @@ export interface IncidentUpdate {
   message?: string;
   status?: Incident['status'];
   createdAt?: Date;
+  isActive?: boolean;
 }
 
 export interface User {
@@ -37,4 +49,5 @@ export interface User {
   name?: string;
   role?: 'admin' | 'member';
   organizationId?: string;
+  isActive?: boolean;
 }
