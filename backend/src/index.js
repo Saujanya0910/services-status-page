@@ -2,6 +2,8 @@ const express = require('express');
 const dotenv = require('dotenv');
 const { sequelize } = require('./models');
 const routes = require('./routes');
+const pkgJson = require('../package.json');
+process.env.NODE_ENV = pkgJson.config.NODE_ENV;
 
 dotenv.config();
 

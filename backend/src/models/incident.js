@@ -1,11 +1,20 @@
 const { DataTypes } = require('sequelize');
 
+/**
+ * @param {import('sequelize').Sequelize} sequelize 
+ */
 module.exports = (sequelize) => {
   const Incident = sequelize.define('Incident', {
     id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    uuid: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      primaryKey: true,
+      allowNull: false,
+      unique: 'incident_uuid_unique'
     },
     title: {
       type: DataTypes.STRING,
@@ -23,6 +32,14 @@ module.exports = (sequelize) => {
       type: DataTypes.ENUM('minor', 'major', 'critical'),
       allowNull: false,
     },
+    createdBy: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      references: {
+        model: 'User',
+        key: 'id'
+      }
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,
@@ -36,8 +53,18 @@ module.exports = (sequelize) => {
     serviceId: {
       type: DataTypes.UUID,
       allowNull: false,
-    },
-  });
+      references: {
+        model: 'Service',
+        key: 'id'
+      },
+    }
+  },
+  {
+    timestamps: true,
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  }
+);
 
   Incident.associate = (models) => {
     Incident.belongsTo(models.Service, { foreignKey: 'serviceId' });
