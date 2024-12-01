@@ -7,9 +7,11 @@ const checkJwt = require('../middleware/auth');
 
 const router = express.Router();
 
-router.use('/users', checkJwt, userRoutes);
-router.use('/organizations', checkJwt, organizationRoutes);
-router.use('/services', checkJwt, serviceRoutes);
-router.use('/incidents', checkJwt, incidentRoutes);
+// checkJwt
+
+router.use('/users', userRoutes);
+router.use('/organizations', organizationRoutes);
+router.use('/services', serviceRoutes);
+router.use('/incidents', incidentRoutes);
 
 module.exports = router;

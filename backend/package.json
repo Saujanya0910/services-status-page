@@ -11,14 +11,15 @@
     "dev": "nodemon src/index.js"
   },
   "dependencies": {
+    "dotenv": "^16.0.3",
     "express": "^4.18.2",
-    "sequelize": "^6.28.0",
+    "express-jwt": "^7.7.5",
+    "express-openid-connect": "^2.17.1",
+    "jwks-rsa": "^2.0.6",
     "mysql2": "^3.1.2",
     "redis": "^4.6.5",
-    "zod": "^3.11.6",
-    "dotenv": "^16.0.3",
-    "express-jwt": "^7.7.5",
-    "jwks-rsa": "^2.0.6"
+    "sequelize": "^6.28.0",
+    "zod": "^3.11.6"
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
