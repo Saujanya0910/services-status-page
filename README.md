@@ -7,68 +7,70 @@ This is a monorepo for the Services Status Page application, which includes both
 - `frontend/`: Contains the React frontend application.
 - `backend/`: Contains the Node.js backend application.
 
+  Check the `README.md` file in each directory for more information about the respective projects.
+
 ## Setup
 
 1. Install dependencies:
 
-  Either install dependencies for both frontend and backend applications separately or run the following command to install dependencies for both applications at once:
+    Either install dependencies for both frontend and backend applications separately or run the following command to install dependencies for both applications at once:
 
-  a. Install dependencies for both frontend and backend applications at once:
+    a. Install dependencies for both frontend and backend applications at once:
 
-  Frontend:
-  ```bash
-  yarn frontend:setup
-  ```
-  Backend:
-  ```bash
-  yarn backend:setup
-  ```
+    Frontend:
+    ```bash
+    yarn frontend:setup
+    ```
+    Backend:
+    ```bash
+    yarn backend:setup
+    ```
 
-  OR
+    OR
 
-  b. Install dependencies for frontend and backend applications separately:
+    b. Install dependencies for frontend and backend applications separately:
 
-  Frontend:
-  ```bash
-  cd frontend
-  ```
+    Frontend:
+    ```bash
+    cd frontend
+    ```
 
-  ```bash
-  yarn install
-  ```
+    ```bash
+    yarn install
+    ```
 
-  Backend:
-  ```bash
-  cd backend
-  ```
+    Backend:
+    ```bash
+    cd backend
+    ```
 
-  ```bash
-  yarn install
-  ```
+    ```bash
+    yarn install
+    ```
 
 2. Start the frontend and backend applications development servers respectively:
 
-  If at the root directory:
+    If at the root directory:
 
-  ```bash
-  yarn frontend:dev
-  ```
+    ```bash
+    yarn frontend:dev
+    ```
 
-  ```bash
-  yarn backend:dev
-  ```
+    ```bash
+    yarn backend:dev
+    ```
 
-  Else:
+    Else:
 
-  Frontend:
-  ```bash
-  yarn dev
-  ```
+    Frontend:
+    ```bash
+    yarn dev
+    ```
 
-  Backend:
-  ```bash
-  yarn dev
-  ```
+    Backend:
+    ```bash
+    yarn dev
+    ```
 
 3. Open the frontend application in your browser:
   
@@ -81,4 +83,3 @@ This is a monorepo for the Services Status Page application, which includes both
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).
-```

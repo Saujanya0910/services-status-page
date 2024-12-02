@@ -1,15 +1,15 @@
-# Backend for Services Status Page
+# Backend for StatusPage application
 
-This directory contains the backend application for the Services Status Page project.
+This directory contains the backend application for the StatusPage application.
 
 ## Technologies Used
 
 - **Express**: A minimal and flexible Node.js web application framework.
-- **Sequelize**: A promise-based Node.js ORM for Postgres, MySQL, MariaDB, SQLite, and Microsoft SQL Server.
-- **MySQL**: A relational database management system.
-- **Redis**: An in-memory data structure store, used as a database, cache, and message broker.
+- **Sequelize**: A promise-based Node.js ORM coupled with MySQL.
+- **MySQL**: A relational database management system - hosted on AWS RDS
 - **Auth0**: Authentication and authorization as a service.
 - **Zod**: A TypeScript-first schema declaration and validation library.
+- **Socket.io**: Real-time, bidirectional, and event-based communication.
 - **dotenv**: A module that loads environment variables from a `.env` file into `process.env`.
 
 ## Project Structure
@@ -56,6 +56,29 @@ This directory contains the backend application for the Services Status Page pro
 - `yarn start`: Start the production server.
 - `yarn dev`: Start the development server with nodemon.
 - `yarn lint`: Run ESLint to lint the code.
+
+## Environment Variables
+
+Create a `.env` file in the `backend` directory with the following variables:
+
+```
+APP_URL=<YOUR-BACKEND-DOMAIN>
+APP_PORT=<YOUR-BACKEND-PORT>
+APP_CORS_ORIGIN=<YOUR-WHITELISTED-CLIENT-DOMAINS>
+
+DATABASE_HOST=<YOUR-DATABASE-HOST>
+DATABASE_PORT=<YOUR-DATABASE-PORT>
+DATABASE_USERNAME=<YOUR-DATABASE-USERNAME>
+DATABASE_PASSWORD=<YOUR-DATABASE-PASSWORD>
+DATABASE_NAME=<YOUR-DATABASE-NAME>
+```
+
+## Available Features
+1. Public view page for real-time service status updates
+2. Admin view page for managing services and incidents
+3. User Authentication using Auth0
+4. Multi-tenant organization structure
+5. Invite users to join an organization
 
 ## License
 

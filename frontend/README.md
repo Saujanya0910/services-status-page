@@ -1,6 +1,6 @@
-# Frontend for Services Status Page
+# Frontend for StatusPage application
 
-This directory contains the frontend application for the Services Status Page project.
+This directory contains the frontend application for the StatusPage application.
 
 ## Technologies Used
 
@@ -60,9 +60,14 @@ This directory contains the frontend application for the Services Status Page pr
 Create a `.env` file in the `frontend` directory with the following variables:
 
 ```
-REACT_APP_AUTH0_DOMAIN=your-auth0-domain
-REACT_APP_AUTH0_CLIENT_ID=your-auth0-client-id
-REACT_APP_AUTH0_AUDIENCE=your-auth0-audience
+VITE_AUTH0_DOMAIN=<YOUR-AUTH0-DOMAIN>
+VITE_AUTH0_CLIENT_ID=<YOUR-CLIENT-ID>
+VITE_AUTH0_CLIENT_SECRET=<YOUR-CLIENT-SECRET>
+VITE_AUTH0_SECRET=<YOUR-AUTH0-SECRET>
+
+VITE_API_DOMAIN=<YOUR-BACKEND-DOMAIN>
+
+VITE_APP_URL=<YOUR-FRONTEND-URL>
 ```
 
 ## License
