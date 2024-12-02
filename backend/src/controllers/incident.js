@@ -1,4 +1,4 @@
-const { Incident, Organization, Service } = require('../models');
+const { Incident, Organization, Service, IncidentUpdate } = require('../models');
 const { Op } = require('sequelize');
 
 /**
@@ -20,9 +20,11 @@ const getIncidentsByOrg = async (req, res) => {
           { name: orgIdentifier }
         ]
       },
+      attributes: { exclude: ['id', 'createdBy', 'createdAt', 'updatedAt', 'organizationId'] },
+
       include: {
         model: Service,
-        attributes: { exclude: ['createdAt', 'updatedAt', 'organizationId'] },
+        attributes: { exclude: ['createdAt', 'createdBy', 'organizationId'] },
         where: { isActive: true },
         required: false
       }
@@ -36,16 +38,23 @@ const getIncidentsByOrg = async (req, res) => {
       return res.status(404).json([]);
     }
     const incidents = await Incident.findAll({
-      attributes: { exclude: ['createdAt', 'updatedAt', 'serviceId'] },
+      attributes: { exclude: ['id', 'createdBy', 'serviceId'] },
       where: {
         serviceId: {
           [Op.in]: serviceIds
         }
       },
-      include: {
-        model: Service,
-        attributes: ['uuid', 'name']
-      },
+      include: [
+        {
+          model: Service,
+          attributes: ['uuid', 'name']
+        },
+        {
+          model: IncidentUpdate,
+          attributes: { exclude: ['id', 'incidentId', 'createdBy'] },
+          order: [['createdAt', 'DESC']]
+        }
+      ]
     });
 
     return res.status(incidents.length ? 200 : 404).json(incidents);
@@ -55,6 +64,78 @@ const getIncidentsByOrg = async (req, res) => {
   }
 };
 
+const createIncident = async (req, res) => {
+  try {
+    const { incidentIdentifier } = req.params;
+    const { title, description } = req.body;
+
+    if (!incidentIdentifier) {
+      return res.status(400).json({ error: 'Service ID is required' });
+    }
+
+    if (!title || !description) {
+      return res.status(400).json({ error: 'Title and description are required' });
+    }
+
+    const service = await Service.findOne({ where: { uuid: incidentIdentifier } });
+    if (!service) {
+      return res.status(404).json({ error: 'Service not found' });
+    }
+
+    const incident = await Incident.create({ title, description, serviceId: service.id });
+    return res.status(201).json({ uuid: incident.uuid, title, description });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const updateIncident = async (req, res) => {
+  try {
+    const { incidentIdentifier } = req.params;
+    const { title, description, status } = req.body;
+
+    if (!incidentIdentifier) {
+      return res.status(400).json({ error: 'Incident ID are required' });
+    }
+
+    const incident = await Incident.findOne({ where: { uuid: incidentIdentifier } });
+    if (!incident) {
+      return res.status(404).json({ error: 'Incident not found' });
+    }
+
+    await incident.update({ title, description, status });
+    return res.json(incident);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const deleteIncident = async (req, res) => {
+  try {
+    const { incidentIdentifier } = req.params;
+
+    if (!incidentIdentifier) {
+      return res.status(400).json({ error: 'Incident ID are required' });
+    }
+
+    const incident = await Incident.findOne({ where: { uuid: incidentIdentifier } });
+    if (!incident) {
+      return res.status(404).json({ error: 'Incident not found' });
+    }
+
+    await incident.update({ isActive: false });
+    return res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
-  getIncidentsByOrg
+  getIncidentsByOrg,
+  createIncident,
+  updateIncident,
+  deleteIncident
 };

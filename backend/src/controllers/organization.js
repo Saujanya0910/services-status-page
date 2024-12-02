@@ -104,8 +104,27 @@ const getOrgByIdentifier = async (req, res) => {
   }
 }
 
+/**
+ * Get all organizations
+ * @param {import('express').Request} req 
+ * @param {import('express').Response} res 
+ */
+const getAllOrganizations = async (req, res) => {
+  try {
+    const search = req.query.search || '';
+    const organizations = await Organization.findAll({
+      attributes: ['uuid', 'name'],
+      where: { isActive: true, name: { [Op.like]: `%${decodeURIComponent(search).trim()}%` } }
+    });
+    res.json(organizations);
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
   getOrganizationByUuid,
   createOrganization,
-  getOrgByIdentifier
+  getOrgByIdentifier,
+  getAllOrganizations
 };

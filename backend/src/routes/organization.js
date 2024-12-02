@@ -6,6 +6,9 @@ const router = express.Router();
 // Get organization details
 router.get('/org/:orgIdentifier', orgController.getOrgByIdentifier);
 
+// Get all organizations (supports searching by name)
+router.get('/orgs', orgController.getAllOrganizations);
+
 // Create organization
 router.post('/', async (req, res) => {
   try {

@@ -92,18 +92,21 @@ const getIncidentsByService = async (req, res) => {
         ],
         isActive: true
       },
-      include: {
+      include: [{
         model: Incident,
         attributes: { exclude: ['createdAt', 'serviceId', 'isActive'] },
         where: { isActive: true },
         required: false,
-        include: {
+        order: [['createdAt', 'DESC']],
+
+        include: [{
           model: IncidentUpdate,
-          attributes: { exclude: ['createdAt', 'incidentId', 'isActive'] },
+          attributes: { exclude: ['createdAt', 'id', 'incidentId', 'isActive'] },
           where: { isActive: true },
-          required: false
-        }
-      }
+          required: false,
+          order: [['createdAt', 'DESC']]
+        }]
+      }]
     });
 
     if (!service) {
@@ -220,11 +223,104 @@ const deleteService = async (req, res) => {
   }
 };
 
+const addIncidentUpdate = async (req, res) => {
+  try {
+    const { serviceIdentifier, incidentIdentifier } = req.params;
+    const { message } = req.body;
+
+    if (!serviceIdentifier || !incidentIdentifier) {
+      return res.status(400).json({ error: 'Service ID and Incident ID are required' });
+    }
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const service = await Service.findOne({ where: { uuid: serviceIdentifier } });
+    if (!service) {
+      return res.status(404).json({ error: 'Service not found' });
+    }
+
+    const incident = await Incident.findOne({ where: { uuid: incidentIdentifier } });
+    if (!incident) {
+      return res.status(404).json({ error: 'Incident not found' });
+    }
+
+    const update = await IncidentUpdate.create({ message, incidentId: incident.id });
+    return res.status(201).json({ uuid: update.uuid, message });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+const updateIncidentUpdate = async (req, res) => {
+  try {
+    const { serviceIdentifier, incidentIdentifier, updateIdentifier } = req.params;
+    const { message } = req.body;
+
+    if (!serviceIdentifier || !incidentIdentifier || !updateIdentifier) {
+      return res.status(400).json({ error: 'Service ID, Incident ID, and Update ID are required' });
+    }
+
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const service = await Service.findOne({ where: { uuid: serviceIdentifier } });
+    if (!service) {
+      return res.status(404).json({ error: 'Service not found' });
+    }
+
+    const incident = await Incident.findOne({ where: { uuid: incidentIdentifier } });
+    if (!incident) {
+      return res.status(404).json({ error: 'Incident not found' });
+    }
+
+    const update = await IncidentUpdate.findOne({ where: { uuid: updateIdentifier } });
+    if (!update) {
+      return res.status(404).json({ error: 'Incident update not found' });
+    }
+
+    await update.update({ message });
+    return res.json({ uuid: update.uuid, message });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+/**
+ * Delete an incident update of a service
+ * @param {import('express').Request} req 
+ * @param {import('express').Response} res 
+ */
+const deleteIncidentUpdate = async (req, res) => {
+  try {
+    const { updateIdentifier } = req.params;
+
+    const update = await IncidentUpdate.findOne({ where: { uuid: updateIdentifier } });
+    if (!update) {
+      return res.status(404).json({ error: 'Incident update not found' });
+    }
+
+    await update.update({ isActive: false });
+
+    return res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
 module.exports = {
   getServicesByOrg,
   getServiceByIdentifier,
   getIncidentsByService,
   addService,
   updateService,
-  deleteService
+  deleteService,
+  addIncidentUpdate,
+  updateIncidentUpdate,
+  deleteIncidentUpdate
 };
