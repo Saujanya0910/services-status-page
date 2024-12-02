@@ -1,4 +1,4 @@
-const { Service, Organization, Incident } = require('../models');
+const { Service, Organization, Incident, IncidentUpdate } = require('../models');
 const { Op } = require('sequelize');
 
 /**
@@ -17,12 +17,13 @@ const getServicesByOrg = async (req, res) => {
       where: {
         [Op.or]: [
           { uuid: orgIdentifier },
-          { name: orgIdentifier }
-        ]
+          { name: { [Op.like]: orgIdentifier } }
+        ],
+        isActive: true
       },
       include: {
         model: Service,
-        attributes: { exclude: ['createdAt', 'updatedAt', 'organizationId', 'isActive'] },
+        attributes: { exclude: ['id', 'createdAt', 'organizationId', 'isActive'] },
         where: { isActive: true }
       }
     });
@@ -31,7 +32,40 @@ const getServicesByOrg = async (req, res) => {
       return res.status(404).json({ error: 'Organization not found' });
     }
 
-    res.json(organization.Services);
+    return res.json(organization.Services);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+/**
+ * Get a service by name or UUID
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+const getServiceByIdentifier = async (req, res) => {
+  try {
+    const { serviceIdentifier } = req.params;
+    if (!serviceIdentifier) {
+      return res.status(400).json({ error: 'Service identifier is required' });
+    }
+
+    const service = await Service.findOne({
+      where: {
+        [Op.or]: [
+          { uuid: serviceIdentifier },
+          { name: { [Op.like]: serviceIdentifier } }
+        ],
+        isActive: true
+      }
+    });
+
+    if (!service) {
+      return res.status(404).json({ error: 'Service not found' });
+    }
+
+    return res.json(service);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -54,13 +88,21 @@ const getIncidentsByService = async (req, res) => {
       where: {
         [Op.or]: [
           { uuid: serviceIdentifier },
-          { name: serviceIdentifier }
-        ]
+          { name: { [Op.like]: serviceIdentifier } }
+        ],
+        isActive: true
       },
       include: {
         model: Incident,
-        attributes: { exclude: ['createdAt', 'updatedAt', 'serviceId', 'isActive'] },
-        where: { isActive: true }
+        attributes: { exclude: ['createdAt', 'serviceId', 'isActive'] },
+        where: { isActive: true },
+        required: false,
+        include: {
+          model: IncidentUpdate,
+          attributes: { exclude: ['createdAt', 'incidentId', 'isActive'] },
+          where: { isActive: true },
+          required: false
+        }
       }
     });
 
@@ -68,7 +110,11 @@ const getIncidentsByService = async (req, res) => {
       return res.status(404).json({ error: 'Service not found' });
     }
 
-    res.json(service.Incidents);
+    const incidents = service.Incidents.map(incident => {
+      const { uuid, title, description, status, createdAt, updatedAt, IncidentUpdates } = incident;
+      return { uuid, title, description, status, createdAt, updatedAt, updates: IncidentUpdates };
+    });
+    return res.status(incidents.length ? 200 : 404).json(incidents);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -100,7 +146,7 @@ const addService = async (req, res) => {
       organizationId
     });
 
-    res.status(201).json(service);
+    return res.status(201).json({ uuid: service.uuid, name: service.name, createdAt: service.createdAt });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -114,14 +160,22 @@ const addService = async (req, res) => {
  */
 const updateService = async (req, res) => {
   try {
-    const { serviceId } = req.params;
+    const { serviceIdentifier } = req.params;
     const { name, description, status } = req.body;
 
-    if (!serviceId) {
+    if (!serviceIdentifier) {
       return res.status(400).json({ error: 'Service ID is required' });
     }
 
-    const service = await Service.findByPk(serviceId);
+    const service = await Service.findOne({
+      where: {
+        [Op.or]: [
+          { uuid: serviceIdentifier },
+          { name: { [Op.like]: serviceIdentifier } }
+        ],
+        isActive: true
+      }
+    });
     if (!service) {
       return res.status(404).json({ error: 'Service not found' });
     }
@@ -132,7 +186,7 @@ const updateService = async (req, res) => {
       status: status || service.status
     });
 
-    res.json(service);
+    return res.json({ uuid: service.uuid, name: service.name, description: service.description, updatedAt: service.updatedAt });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -168,6 +222,7 @@ const deleteService = async (req, res) => {
 
 module.exports = {
   getServicesByOrg,
+  getServiceByIdentifier,
   getIncidentsByService,
   addService,
   updateService,
