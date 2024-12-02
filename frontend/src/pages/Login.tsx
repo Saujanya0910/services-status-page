@@ -6,11 +6,11 @@ import { useNavigate, useParams } from 'react-router-dom';
 export function Login() {
   const { loginWithRedirect, isAuthenticated } = useAuth0();
   const navigate = useNavigate();
-  const { orgName } = useParams();
+  const { orgIdentifier } = useParams();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(`/${orgName}/dashboard`);
+      navigate(`/${orgIdentifier}/dashboard`);
     }
   }, [isAuthenticated, navigate]);
 

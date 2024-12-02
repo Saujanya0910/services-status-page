@@ -22,6 +22,8 @@ interface AppState {
   deleteService: (serviceId: string) => void;
   deleteIncident: (incidentId: string) => void;
   deleteIncidentUpdate: (updateId: string) => void;
+  resetStatuses: () => void;
+  resetAllState: () => void;
 }
 
 const useStore = create(
@@ -68,6 +70,20 @@ const useStore = create(
           updates: incident.updates ? incident.updates.filter((update) => update.uuid !== updateId) : [],
         })),
       })),
+      resetStatuses: () => set({
+        organization: {},
+        services: [],
+        incidents: [],
+        currentUser: null,
+        isAuthenticated: false,
+      }),
+      resetAllState: () => set({
+        organization: {},
+        services: [],
+        incidents: [],
+        currentUser: null,
+        isAuthenticated: false,
+      })
     }),
     {
       name: 'status-page-store', // name of the item in the storage (must be unique)

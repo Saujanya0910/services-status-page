@@ -17,11 +17,19 @@ export const fetchServices = (orgIdentifier: string): Promise<any> => {
 };
 
 /**
- * Fetches the incidents for the organization
- * @param orgIdentifier
+ * Fetches the service details
+ * @param serviceIdentifier 
  */
-export const fetchIncidents = (orgIdentifier: string): Promise<any> => {
-  return axiosInstance.get(`/api/org/${orgIdentifier}/incidents`).then(response => response.data);
+export const fetchService = (serviceIdentifier: string): Promise<any> => {
+  return axiosInstance.get(`/api/service/${serviceIdentifier}`).then(response => response.data);
+};
+
+/**
+ * Fetches the incidents for the organization
+ * @param serviceIdentifier
+ */
+export const fetchIncidents = (serviceIdentifier: string): Promise<any> => {
+  return axiosInstance.get(`/api/service/${serviceIdentifier}/incidents`).then(response => response.data);
 };
 
 /**

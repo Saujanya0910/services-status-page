@@ -1,20 +1,6 @@
 import { format } from 'date-fns';
-import { CheckCircle, AlertCircle, XCircle } from 'lucide-react';
 import type { Service, ServiceStatus } from '../types';
-
-const statusIcons = {
-  operational: <CheckCircle className="h-6 w-6 text-green-500" />,
-  degraded: <AlertCircle className="h-6 w-6 text-yellow-500" />,
-  partial_outage: <AlertCircle className="h-6 w-6 text-orange-500" />,
-  major_outage: <XCircle className="h-6 w-6 text-red-500" />,
-};
-
-const statusText = {
-  operational: 'Operational',
-  degraded: 'Degraded Performance',
-  partial_outage: 'Partial Outage',
-  major_outage: 'Major Outage',
-};
+import { statusIcons, statusText } from '@/constants';
 
 interface ServiceCardProps {
   service: Service;

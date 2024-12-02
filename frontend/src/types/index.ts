@@ -1,4 +1,4 @@
-export type ServiceStatus = 'operational' | 'degraded' | 'partial_outage' | 'major_outage';
+export type ServiceStatus = 'operational' | 'degraded' | 'partial_outage' | 'outage';
 
 export interface Organization {
   id?: number;
@@ -39,6 +39,7 @@ export interface IncidentUpdate {
   message?: string;
   status?: Incident['status'];
   createdAt?: Date;
+  updatedAt?: Date;
   isActive?: boolean;
 }
 

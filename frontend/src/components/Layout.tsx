@@ -8,7 +8,7 @@ interface LayoutProps {
 }
 
 export function Layout({ children }: LayoutProps) {
-  const { orgName } = useParams();
+  const { orgIdentifier } = useParams();
   const navigate = useNavigate();
   const { currentUser, setCurrentUser } = useStore();
 
@@ -25,7 +25,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex">
               <div
                 className="flex-shrink-0 flex items-center cursor-pointer"
-                onClick={() => navigate(`/${orgName ?? ''}/status`)}
+                onClick={() => navigate(`/${orgIdentifier ?? ''}/status`)}
               >
               <Bell className="h-8 w-8 text-indigo-600" />
               <span className="ml-2 text-xl font-bold text-gray-900">StatusPage</span>
