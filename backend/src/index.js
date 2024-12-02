@@ -19,9 +19,6 @@ app.use(express.json());
 
 app.use('/api', routes);
 
-const auth0Service = require('./services/auth0');
-auth0Service(app);
-
 app.listen(PORT, async () => {
   console.log(`Server is running on port ${PORT}`);
   await sequelize.authenticate();

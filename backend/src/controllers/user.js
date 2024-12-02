@@ -1,5 +1,4 @@
 const { User } = require('../models');
-const { auth } = require('express-openid-connect');
 
 require('dotenv').config();
 
@@ -100,7 +99,6 @@ const saveUser = async (req, res) => {
  * @param {import('express').Response} res 
  */
 const logoutUser = (req, res) => {
-  res.oidc.logout({ returnTo: process.env.APP_URL });
 };
 
 module.exports = {
