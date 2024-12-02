@@ -115,7 +115,7 @@ const getIncidentsByService = async (req, res) => {
 
     const incidents = service.Incidents.map(incident => {
       const { uuid, title, description, status, createdAt, updatedAt, IncidentUpdates } = incident;
-      return { uuid, title, description, status, createdAt, updatedAt, updates: IncidentUpdates };
+      return { uuid, title, description, status, createdAt, updatedAt, IncidentUpdates };
     });
     return res.status(incidents.length ? 200 : 404).json(incidents);
   } catch (error) {
@@ -131,13 +131,14 @@ const getIncidentsByService = async (req, res) => {
  */
 const addService = async (req, res) => {
   try {
-    const { name, description, status, organizationId } = req.body;
+    const { orgIdentifier } = req.params;
+    const { name, description, status } = req.body;
 
-    if (!name || !status || !organizationId) {
-      return res.status(400).json({ error: 'Name, status, and organizationId are required' });
+    if (!name || !status || !orgIdentifier) {
+      return res.status(400).json({ error: 'Name, status, and orgIdentifier are required' });
     }
 
-    const organization = await Organization.findByPk(organizationId);
+    const organization = await Organization.findOne({ where: { uuid: orgIdentifier } });
     if (!organization) {
       return res.status(404).json({ error: 'Organization not found' });
     }
@@ -146,10 +147,10 @@ const addService = async (req, res) => {
       name,
       description,
       status,
-      organizationId
+      organizationId: organization.id
     });
 
-    return res.status(201).json({ uuid: service.uuid, name: service.name, createdAt: service.createdAt });
+    return res.status(201).json({ uuid: service.uuid, name: service.name, description, status, createdAt: service.createdAt });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -189,7 +190,7 @@ const updateService = async (req, res) => {
       status: status || service.status
     });
 
-    return res.json({ uuid: service.uuid, name: service.name, description: service.description, updatedAt: service.updatedAt });
+    return res.json({ uuid: service.uuid, name: service.name, description: service.description, status: service.status, updatedAt: service.updatedAt });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
@@ -225,20 +226,15 @@ const deleteService = async (req, res) => {
 
 const addIncidentUpdate = async (req, res) => {
   try {
-    const { serviceIdentifier, incidentIdentifier } = req.params;
+    const { incidentIdentifier } = req.params;
     const { message } = req.body;
 
-    if (!serviceIdentifier || !incidentIdentifier) {
+    if (!incidentIdentifier) {
       return res.status(400).json({ error: 'Service ID and Incident ID are required' });
     }
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
-    }
-
-    const service = await Service.findOne({ where: { uuid: serviceIdentifier } });
-    if (!service) {
-      return res.status(404).json({ error: 'Service not found' });
     }
 
     const incident = await Incident.findOne({ where: { uuid: incidentIdentifier } });
@@ -256,20 +252,15 @@ const addIncidentUpdate = async (req, res) => {
 
 const updateIncidentUpdate = async (req, res) => {
   try {
-    const { serviceIdentifier, incidentIdentifier, updateIdentifier } = req.params;
+    const { incidentIdentifier, updateIdentifier } = req.params;
     const { message } = req.body;
 
-    if (!serviceIdentifier || !incidentIdentifier || !updateIdentifier) {
-      return res.status(400).json({ error: 'Service ID, Incident ID, and Update ID are required' });
+    if (!incidentIdentifier || !updateIdentifier) {
+      return res.status(400).json({ error: 'Incident ID and Update ID are required' });
     }
 
     if (!message) {
       return res.status(400).json({ error: 'Message is required' });
-    }
-
-    const service = await Service.findOne({ where: { uuid: serviceIdentifier } });
-    if (!service) {
-      return res.status(404).json({ error: 'Service not found' });
     }
 
     const incident = await Incident.findOne({ where: { uuid: incidentIdentifier } });

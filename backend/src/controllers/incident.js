@@ -66,18 +66,18 @@ const getIncidentsByOrg = async (req, res) => {
 
 const createIncident = async (req, res) => {
   try {
-    const { incidentIdentifier } = req.params;
+    const { serviceIdentifier, incidentIdentifier } = req.params;
     const { title, description } = req.body;
 
-    if (!incidentIdentifier) {
-      return res.status(400).json({ error: 'Service ID is required' });
+    if (!serviceIdentifier || !incidentIdentifier) {
+      return res.status(400).json({ error: 'Service ID and Incident ID is required' });
     }
 
     if (!title || !description) {
       return res.status(400).json({ error: 'Title and description are required' });
     }
 
-    const service = await Service.findOne({ where: { uuid: incidentIdentifier } });
+    const service = await Service.findOne({ where: { uuid: serviceIdentifier } });
     if (!service) {
       return res.status(404).json({ error: 'Service not found' });
     }
@@ -105,7 +105,7 @@ const updateIncident = async (req, res) => {
     }
 
     await incident.update({ title, description, status });
-    return res.json(incident);
+    return res.json({  uuid: incident.uuid, title, description, status, severity: incident.severity, updatedAt: incident.updatedAt });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
