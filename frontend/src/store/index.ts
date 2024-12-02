@@ -1,7 +1,20 @@
-import create from 'zustand';
+import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Service, Incident, User, Organization } from '../types';
-import { fetchServices as fetchServicesApi, fetchIncidents as fetchIncidentsApi } from '../services/api';
+import type { Service, Incident, IncidentUpdate, User, Organization } from '../types';
+import { 
+  fetchServices as fetchServicesApi, 
+  fetchIncidentsByOrg as fetchIncidentsByOrgApi, 
+  fetchIncidents as fetchIncidentsApi, 
+  createService as createServiceApi, 
+  updateService as updateServiceApi,
+  deleteService as deleteServiceApi,
+  createIncident as createIncidentApi, 
+  updateIncident as updateIncidentApi,
+  deleteIncident as deleteIncidentApi,
+  createIncidentUpdate as createIncidentUpdateApi, 
+  updateIncidentUpdate as updateIncidentUpdateApi,
+  deleteIncidentUpdate as deleteIncidentUpdateApi,
+} from '../services/api';
 
 interface AppState {
   organization: Organization;
@@ -43,53 +56,68 @@ const useStore = create(
           service.uuid === serviceId ? { ...service, status } : service
         ),
       })),
-      addService: (service) => set((state) => ({ services: [...state.services, service] })),
-      updateIncident: (incident) => set((state) => ({
-        incidents: state.incidents.map((inc) =>
-          inc.id === incident.id ? { ...inc, ...incident } : inc
-        ),
-      })),
-      addIncident: (incident) => set((state) => ({ incidents: [...state.incidents, incident] })),
+      addService: async (service) => {
+        await createServiceApi(service);
+        set((state) => ({ services: [...state.services, service] }))
+      },
+      updateIncident: async (incident) => {
+        await updateIncidentApi(incident);
+        set((state) => ({
+          incidents: state.incidents.map((inc) =>
+            inc.id === incident.id ? { ...inc, ...incident } : inc
+          ),
+        }))
+      },
+      addIncident: async (incident) => {
+        await createIncidentApi(incident);
+        set((state) => ({ incidents: [...state.incidents, incident] }))
+      },
       fetchServices: async (orgId) => {
         const services = await fetchServicesApi(orgId);
         set({ services });
       },
       fetchIncidents: async (orgId) => {
-        const incidents = await fetchIncidentsApi(orgId);
+        const incidents = await fetchIncidentsByOrgApi(orgId);
         set({ incidents });
       },
-      deleteService: (serviceId) => set((state) => ({
-        services: state.services.filter((service) => service.uuid !== serviceId),
-      })),
-      deleteIncident: (incidentId) => set((state) => ({
-        incidents: state.incidents.filter((incident) => incident.uuid !== incidentId),
-      })),
-      deleteIncidentUpdate: (updateId) => set((state) => ({
-        incidents: state.incidents.map((incident) => ({
-          ...incident,
-          updates: incident.updates ? incident.updates.filter((update) => update.uuid !== updateId) : [],
-        })),
-      })),
+      deleteService: async (serviceId) => {
+        await deleteServiceApi(serviceId);
+        set((state) => ({
+          services: state.services.filter((service) => service.uuid !== serviceId),
+        }))
+      },
+      deleteIncident: async (incidentId) => {
+        await deleteIncidentApi(incidentId);
+        set((state) => ({
+          incidents: state.incidents.filter((incident) => incident.uuid !== incidentId)
+        }))
+      },
+      deleteIncidentUpdate: async (updateId) => {
+        await deleteIncidentUpdateApi(updateId);
+        set((state) => ({
+          incidents: state.incidents.map((incident) => ({
+            ...incident,
+            updates: incident.IncidentUpdates?.filter((update) => update.uuid !== updateId),
+          })),
+        }))
+      },
       resetStatuses: () => set({
         organization: {},
         services: [],
-        incidents: [],
-        currentUser: null,
-        isAuthenticated: false,
+        incidents: []
       }),
       resetAllState: () => set({
         organization: {},
         services: [],
         incidents: [],
         currentUser: null,
-        isAuthenticated: false,
-      })
+        isAuthenticated: false
+      }),
     }),
     {
-      name: 'status-page-store', // name of the item in the storage (must be unique)
-      getStorage: () => localStorage, // (optional) by default, 'localStorage' is used
+      name: 'app-storage',
     }
   )
 );
 
-export { useStore };
+export default useStore;

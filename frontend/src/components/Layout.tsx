@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useStore } from '../store';
+import useStore from '../store';
 import { LogOut, Settings, Bell } from 'lucide-react';
 
 interface LayoutProps {

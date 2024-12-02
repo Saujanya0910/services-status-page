@@ -1,6 +1,6 @@
 import { createContext, useContext, ReactNode, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useStore } from '../store';
+import useStore from '../store';
 import { useAuth0, Auth0Provider } from '@auth0/auth0-react';
 import * as apiService from '../services/api'; // Import apiService
 import { User } from '@/types';

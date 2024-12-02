@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useStore } from '../store';
+import useStore from '../store';
 import { format } from 'date-fns';
 import * as apiService from '../services/api';
 import { toast } from 'react-toastify';
@@ -23,12 +23,12 @@ export function PublicStatusPage() {
     const fetchOrg = async () => {
       try {
         const response = await apiService.fetchOrganization(orgIdentifier);
-        if (!response.data) {
+        if (!response) {
           toast.error('Failed to fetch organization data');
           navigate('/page-not-found');
           return;
         }
-        setOrganization(response.data);
+        setOrganization(response);
       } catch (error) {
         console.error('Failed to fetch org:', error);
         toast.error('Failed to fetch organization data');

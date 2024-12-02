@@ -29,7 +29,7 @@ export interface Incident {
   createdAt?: Date;
   updatedAt?: Date;
   serviceIds?: string[];
-  updates?: IncidentUpdate[];
+  IncidentUpdates?: IncidentUpdate[];
   isActive?: boolean;
 }
 

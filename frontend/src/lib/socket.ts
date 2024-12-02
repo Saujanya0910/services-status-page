@@ -1,5 +1,5 @@
 import { io } from 'socket.io-client';
-import { useStore } from '../store';
+import useStore from '../store';
 
 const SOCKET_URL = 'http://localhost:3001'; // Replace with your actual WebSocket server URL
 
