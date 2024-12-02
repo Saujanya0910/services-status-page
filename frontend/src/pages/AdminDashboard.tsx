@@ -5,11 +5,14 @@ import { Plus } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { ServiceDialog } from '../components/dialogs/ServiceDialog';
 import { Service } from '@/types';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 export function AdminDashboard() {
-  const { organization, services, fetchServices, fetchIncidents, addService, updateServiceStatus, addIncident, updateIncident, deleteService, deleteIncident, deleteIncidentUpdate } = useStore();
+  const { organization, services, fetchServices, fetchIncidents, addService, updateService, updateServiceStatus, deleteService } = useStore();
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (organization?.uuid && organization?.name) {
@@ -18,13 +21,24 @@ export function AdminDashboard() {
     }
   }, [organization.uuid, fetchServices, fetchIncidents]);
 
-  const handleAddOrUpdateService = (service: Service) => {
-    if (selectedService) {
-      // Update service logic
-    } else {
-      addService(service);
+  const handleAddOrUpdateService = async (service: Service) => {
+    if(organization?.uuid) {
+      try {
+        if (selectedService) {
+          if(selectedService.uuid) {
+            await updateService(service);
+          }
+        } else {
+          addService(organization.uuid, service);
+        }
+      } catch (error) {
+        console.error('Failed to save service:', error);
+        toast.error('Failed to save service');
+      } finally {
+        setSelectedService(null);
+        setIsServiceDialogOpen(false);
+      }
     }
-    setIsServiceDialogOpen(false);
   };
 
   const handleDeleteService = (serviceId: string) => {
@@ -46,7 +60,8 @@ export function AdminDashboard() {
           <ServiceCard 
             key={service.uuid} 
             service={service} 
-            onClick={() => { setSelectedService(service); setIsServiceDialogOpen(true); }}
+            onClick={() => navigate(`/${organization?.name}/manage/service/${service.uuid}`)}
+            onEdit={() => { setSelectedService(service); setIsServiceDialogOpen(true); }}
             onDelete={() => service.uuid && handleDeleteService(service.uuid)}
             onUpdateStatus={updateServiceStatus}
           />

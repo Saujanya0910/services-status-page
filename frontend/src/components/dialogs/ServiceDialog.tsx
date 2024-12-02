@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Button } from '../ui/button';
@@ -14,14 +13,17 @@ interface ServiceDialogProps {
 export function ServiceDialog({ open, onOpenChange, service, onSave }: ServiceDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [status, setStatus] = useState<Service['status']>('operational');
 
   useEffect(() => {
     if (service) {
       setName(service.name || '');
       setDescription(service.description || '');
+      setStatus(service.status || 'operational');
     } else {
       setName('');
       setDescription('');
+      setStatus('operational');
     }
   }, [service]);
 
@@ -31,7 +33,7 @@ export function ServiceDialog({ open, onOpenChange, service, onSave }: ServiceDi
       ...service,
       name,
       description,
-      status: service?.status || 'operational',
+      status,
       updatedAt: new Date(),
     };
     onSave(newService);
@@ -69,6 +71,22 @@ export function ServiceDialog({ open, onOpenChange, service, onSave }: ServiceDi
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               required
             />
+          </div>
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+              Status
+            </label>
+            <select
+              id="status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as Service['status'])}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              required
+            >
+              <option value="operational">Operational</option>
+              <option value="degraded">Degraded</option>
+              <option value="down">Down</option>
+            </select>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

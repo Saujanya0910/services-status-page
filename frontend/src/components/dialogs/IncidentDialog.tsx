@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../ui/dialog';
 import { Button } from '../ui/button';
@@ -15,25 +14,30 @@ interface IncidentDialogProps {
 export function IncidentDialog({ open, onOpenChange, incident, onSave, serviceId }: IncidentDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [status, setStatus] = useState<Incident['status']>('investigating');
+  const [severity, setSeverity] = useState<Incident['severity']>('minor');
 
   useEffect(() => {
     if (incident) {
       setTitle(incident.title || '');
       setDescription(incident.description || '');
+      setStatus(incident.status || 'investigating');
+      setSeverity(incident.severity || 'minor');
     } else {
       setTitle('');
       setDescription('');
+      setStatus('investigating');
+      setSeverity('minor');
     }
   }, [incident]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newIncident = {
+    const newIncident: Incident = {
       ...incident,
       title,
       description,
-      serviceId,
-      status: incident?.status || 'investigating',
+      status,
       severity: incident?.severity || 'minor',
       updatedAt: new Date(),
     };
@@ -72,6 +76,23 @@ export function IncidentDialog({ open, onOpenChange, incident, onSave, serviceId
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
               required
             />
+          </div>
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+              Status
+            </label>
+            <select
+              id="status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value as 'investigating' | 'identified' | 'monitoring' | 'resolved')}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              required
+            >
+              <option value="investigating">Investigating</option>
+              <option value="identified">Identified</option>
+              <option value="monitoring">Monitoring</option>
+              <option value="resolved">Resolved</option>
+            </select>
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

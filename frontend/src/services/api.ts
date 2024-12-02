@@ -41,8 +41,8 @@ export const fetchService = (serviceIdentifier: string): Promise<Partial<Service
   return axiosInstance.get(`/api/service/${serviceIdentifier}`).then(response => response.data);
 };
 
-export const createService = async (service: Service): Promise<Partial<Service>> => {
-  const response = await axiosInstance.post(`/api/service`, service);
+export const createService = async (orgIdentifier: string, service: Service): Promise<Partial<Service>> => {
+  const response = await axiosInstance.post(`/api/org/${orgIdentifier}/service`, service);
   return response.data;
 }
 
@@ -73,8 +73,8 @@ export const fetchIncidentsByOrg = async (orgIdentifier: string): Promise<Partia
   return response.data;
 }
 
-export const createIncident = async (incident: Incident): Promise<Partial<Incident>> => {
-  const response = await axiosInstance.post(`/api/incident`, incident);
+export const createIncident = async (serviceIdentifier: string, incident: Incident): Promise<Partial<Incident>> => {
+  const response = await axiosInstance.post(`/api/service/${serviceIdentifier}/incident`, incident);
   return response.data;
 }
 
@@ -83,21 +83,21 @@ export const updateIncident = async (incident: Incident): Promise<Partial<Incide
   return response.data;
 }
 
-export const deleteIncident = async (incidentId: string): Promise<void> => {
-  await axiosInstance.delete(`/api/incident/${incidentId}`);
+export const deleteIncident = async (incidentIdentifier: string): Promise<void> => {
+  await axiosInstance.delete(`/api/incident/${incidentIdentifier}`);
 }
 
 
-export const createIncidentUpdate = async (incidentUpdate: IncidentUpdate): Promise<Partial<IncidentUpdate>> => {
-  const response = await axiosInstance.post(`/api/incident-update/${incidentUpdate.uuid}`, incidentUpdate);
+export const createIncidentUpdate = async (incidentIdentifier: string, incidentUpdate: IncidentUpdate): Promise<Partial<IncidentUpdate>> => {
+  const response = await axiosInstance.post(`/api/incident/${incidentIdentifier}/incident-update`, incidentUpdate);
+  return response.data;
+}
+
+export const updateIncidentUpdate = async (incidentIdentifier: string, incidentUpdate: IncidentUpdate): Promise<Partial<IncidentUpdate>> => {
+  const response = await axiosInstance.put(`/api/incident/${incidentIdentifier}/incident-update/${incidentUpdate.uuid}`, incidentUpdate);
   return response.data;
 }
 
 export const deleteIncidentUpdate = async (incidentUpdateId: string): Promise<void> => {
   await axiosInstance.delete(`/api/incident-update/${incidentUpdateId}`);
-}
-
-export const updateIncidentUpdate = async (incidentUpdate: IncidentUpdate): Promise<Partial<IncidentUpdate>> => {
-  const response = await axiosInstance.put(`/api/incident-update/${incidentUpdate.uuid}`, incidentUpdate);
-  return response.data;
 }
