@@ -16,8 +16,12 @@ This directory contains the frontend application for the Services Status Page pr
 
 - `src/`: Contains the source code for the React application.
   - `components/`: Reusable UI components.
+  - `constants/`: Constants used in the application.
+  - `services/`: API services for fetching data.
   - `lib/`: Utility functions and helpers.
+  - `store/`: Zustand store for managing global state.
   - `pages/`: Page components for different routes.
+  - `types/`: TypeScript types and interfaces.
   - `styles/`: Global styles and Tailwind CSS configuration.
   - `index.css`: Main CSS file.
   - `main.tsx`: Entry point for the React application.

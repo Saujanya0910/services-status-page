@@ -10,6 +10,8 @@
     "backend"
   ],
   "scripts": {
+    "frontend:setup": "cd ./frontend && yarn install && yarn dev",
+    "backend:setup": "cd ./backend && yarn install && yarn dev",
     "frontend:start": "cd ./frontend && yarn start",
     "backend:start": "cd ./backend && yarn start",
     "frontend:dev": "cd ./frontend && yarn dev",

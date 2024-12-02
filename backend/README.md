@@ -17,6 +17,8 @@ This directory contains the backend application for the Services Status Page pro
 - `src/`: Contains the source code for the backend application.
   - `models/`: Sequelize models for the database.
   - `routes/`: Express routes for the API.
+  - `services/`: Business logic for the application.
+  - `controllers/`: Request handlers for the API routes.
   - `middleware/`: Custom middleware functions.
   - `index.js`: Entry point for the backend application.
 - `.env`: Environment variables file.
