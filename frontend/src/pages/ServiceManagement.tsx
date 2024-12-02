@@ -95,7 +95,7 @@ export function ServiceManagement() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold text-gray-900">Manage Service Incidents for {service?.name}</h1>
+      <h1 className="text-2xl font-semibold text-gray-900">Manage Service Incidents for {capitalize(service?.name)}</h1>
       <Button onClick={() => navigate(`/${orgIdentifier}/manage`)} className="mr-4">
         Back to Services
       </Button>
@@ -103,62 +103,68 @@ export function ServiceManagement() {
         Add Incident
       </Button>
       <div className="bg-white shadow overflow-hidden sm:rounded-lg mt-4">
-        <ul className="divide-y divide-gray-200">
-          {incidents.map((incident) => (
-            <li key={incident.uuid} className="px-4 py-4 sm:px-6">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <h3 className="text-sm font-medium text-gray-900">
-                    {incident.title}
-                  </h3>
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    incident.status === 'resolved'
-                      ? 'bg-green-100 text-green-800'
-                      : incident.status === 'monitoring'
-                      ? 'bg-blue-100 text-blue-800'
-                      : incident.status === 'identified'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-red-100 text-red-800'
-                  }`}>
-                    {capitalize(incident.status)}
-                  </span>
-                  <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                    incident.severity === 'critical'
-                      ? 'bg-red-100 text-red-800'
-                      : incident.severity === 'major'
-                      ? 'bg-yellow-100 text-yellow-800'
-                      : 'bg-green-100 text-green-800'
-                  }`}>
-                    {capitalize(incident.severity)}
-                  </span>
+        {incidents.length === 0 ? (
+          <div className="p-4 text-center text-gray-500">
+            No incidents to display.
+          </div>
+        ) : (
+          <ul className="divide-y divide-gray-200">
+            {incidents.map((incident) => (
+              <li key={incident.uuid} className="px-4 py-4 sm:px-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <h3 className="text-sm font-medium text-gray-900">
+                      {incident.title}
+                    </h3>
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      incident.status === 'resolved'
+                        ? 'bg-green-100 text-green-800'
+                        : incident.status === 'monitoring'
+                        ? 'bg-blue-100 text-blue-800'
+                        : incident.status === 'identified'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}>
+                      {capitalize(incident.status)}
+                    </span>
+                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      incident.severity === 'critical'
+                        ? 'bg-red-100 text-red-800'
+                        : incident.severity === 'major'
+                        ? 'bg-yellow-100 text-yellow-800'
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {capitalize(incident.severity)}
+                    </span>
+                  </div>
+                  <div className="flex space-x-2">
+                    <Button onClick={() => { setSelectedIncident(incident); setIsIncidentDialogOpen(true); }}>Edit</Button>
+                    <Button onClick={() => incident.uuid && handleDeleteIncident(incident.uuid)}>Delete</Button>
+                  </div>
                 </div>
-                <div className="flex space-x-2">
-                  <Button onClick={() => { setSelectedIncident(incident); setIsIncidentDialogOpen(true); }}>Edit</Button>
-                  <Button onClick={() => incident.uuid && handleDeleteIncident(incident.uuid)}>Delete</Button>
-                </div>
-              </div>
-              <div className="mt-4">
-                <h4 className="text-sm font-medium text-gray-900">Updates</h4>
-                <ul className="divide-y divide-gray-200">
-                  {incident.IncidentUpdates?.map((update) => (
-                    <li key={update.uuid} className="px-4 py-4 sm:px-6">
-                      <div className="flex items-center justify-between">
-                        <p className="text-sm text-gray-500">{update.message}</p>
-                        <div className="flex space-x-2">
-                          <Button onClick={() => { setSelectedIncident(incident); setSelectedIncidentUpdate(update); setIsIncidentUpdateDialogOpen(true); }}>Edit</Button>
-                          <Button onClick={() => update.uuid && handleDeleteIncidentUpdate(update.uuid)}>Delete</Button>
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium text-gray-900">Updates</h4>
+                  <ul className="divide-y divide-gray-200">
+                    {incident.IncidentUpdates?.map((update) => (
+                      <li key={update.uuid} className="px-4 py-4 sm:px-6">
+                        <div className="flex items-center justify-between">
+                          <p className="text-sm text-gray-500">{update.message}</p>
+                          <div className="flex space-x-2">
+                            <Button onClick={() => { setSelectedIncident(incident); setSelectedIncidentUpdate(update); setIsIncidentUpdateDialogOpen(true); }}>Edit</Button>
+                            <Button onClick={() => update.uuid && handleDeleteIncidentUpdate(update.uuid)}>Delete</Button>
+                          </div>
                         </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-                <Button onClick={() => handleAddIncidentUpdateUnderIncident(incident)}>
-                  Add Update
-                </Button>
-              </div>
-            </li>
-          ))}
-        </ul>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button onClick={() => handleAddIncidentUpdateUnderIncident(incident)}>
+                    Add Update
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <IncidentDialog

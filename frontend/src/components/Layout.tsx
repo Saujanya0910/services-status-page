@@ -40,6 +40,7 @@ export function Layout({ children }: LayoutProps) {
                 <button
                   type="button"
                   className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
+                  onClick={() => navigate(`/${orgIdentifier ?? ''}/manage/settings`)}
                 >
                   <Settings className="h-6 w-6" />
                 </button>

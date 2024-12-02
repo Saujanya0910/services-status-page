@@ -13,6 +13,7 @@ import { Home } from './pages/Home';
 import { ServiceManagement } from './pages/ServiceManagement';
 import { CreateOrJoinOrg } from './pages/CreateOrJoinOrg';
 import { AuthCallback } from './pages/AuthCallback';
+import { SettingsPage } from './pages/SettingsPage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/create-or-join-org" element={<CreateOrJoinOrg />} />
           <Route path="/:orgIdentifier/manage" element={<Layout><AdminDashboard /></Layout>} />
           <Route path="/:orgIdentifier/manage/service/:serviceIdentifier" element={<Layout><ServiceManagement /></Layout>} />
+          <Route path="/:orgIdentifier/manage/settings" element={<Layout><SettingsPage /></Layout>} /> {/* Add new route */}
           <Route path="/callback" element={<AuthCallback />} />
           <Route path="/page-not-found" element={<NotFound />} />
           <Route path="*" element={<Navigate to="/page-not-found" replace />} />

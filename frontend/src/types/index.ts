@@ -4,6 +4,7 @@ export interface Organization {
   id?: number;
   uuid?: string;
   name?: string;
+  inviteCode?: string;
   createdAt?: Date;
   updatedAt?: Date;
   isActive?: boolean;

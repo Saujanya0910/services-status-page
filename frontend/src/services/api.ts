@@ -129,3 +129,27 @@ export const fetchOrganizationByInviteCode = async (inviteCode: string): Promise
   const response = await axiosInstance.get(`/api/org/check-invite`, { params: { inviteCode } });
   return response.data;
 };
+
+/**
+ * Fetches the invite code for the organization
+ * @param orgIdentifier 
+ */
+export const fetchInviteCode = (orgIdentifier: string): Promise<Partial<Organization>> => {
+  return axiosInstance.get(`/api/org/${orgIdentifier}/invite-code`).then(response => response.data);
+};
+
+/**
+ * Fetches the users for the organization
+ * @param orgIdentifier 
+ */
+export const fetchUsers = (orgIdentifier: string): Promise<User[]> => {
+  return axiosInstance.get(`/api/org/${orgIdentifier}/members`).then(response => response.data);
+};
+
+/**
+ * Regenerates the invite code for the organization
+ * @param orgIdentifier 
+ */
+export const regenerateInviteCode = (orgIdentifier: string): Promise<{ inviteCode: string }> => {
+  return axiosInstance.post(`/api/org/${orgIdentifier}/regenerate-invite-code`).then(response => response.data);
+};
