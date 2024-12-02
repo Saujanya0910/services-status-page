@@ -2,12 +2,16 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as apiService from '../services/api';
 import { Organization } from '@/types';
+import { Bell } from 'lucide-react';
+import useStore from '@/store';
 
 export function Home() {
   const navigate = useNavigate();
   const [organizations, setOrganizations] = useState<Organization[]>([]);
+  const { resetStatuses } = useStore();
 
   useEffect(() => {
+    resetStatuses();
     const fetchOrganizations = async () => {
       try {
         const response = await apiService.fetchOrganizations();
@@ -24,11 +28,23 @@ export function Home() {
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl w-full space-y-8">
         <h2 className="text-center text-3xl font-extrabold text-gray-900">
-          Welcome to the Services Status Page
+          <span className="mr-2">Welcome to</span>
+          <div className="inline-flex justify-center align-middle">
+            <Bell className="h-8 w-8 text-indigo-600 ml-2" />
+            <span className="ml-2 text-gray-900">StatusPage</span>
+          </div>
         </h2>
         <p className="text-center text-lg text-gray-600">
           Track the status of services for various organizations.
         </p>
+        <div className="flex justify-center">
+          <button
+            className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700"
+            onClick={() => navigate('/signup')}
+          >
+            Signup/Login
+          </button>
+        </div>
         <div className="space-y-4">
           {organizations.map((org) => (
             <div

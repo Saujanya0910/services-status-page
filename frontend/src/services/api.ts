@@ -1,21 +1,32 @@
-import { Incident, IncidentUpdate, Organization, Service } from '@/types';
+import { Incident, IncidentUpdate, Organization, Service, User } from '@/types';
 import axiosInstance from './index';
+
+/**
+ * Save user to the backend
+ * @param user 
+ */
+export const saveUser = (user: Partial<User>, organization: { orgIdentifier?: string}): Promise<any> => {
+  return axiosInstance.post('/api/user', { user, organization });
+};
+
+export const createOrUpdateUser = async (user: (Partial<User> & { orgIdentifier?: string })): Promise<Partial<User>> => {
+  const response = await axiosInstance.post('/api/user', user);
+  return response.data;
+}
+
+export const updateUser = async (user: Partial<User>) => {
+  const response = await axiosInstance.put(`/api/user/${user.uuid}`, user);
+  return response.data;
+}
+
 
 /**
  * Fetches the organization details
  * @param orgIdentifier 
  */
 export const fetchOrganization = (orgIdentifier: string): Promise<Partial<Organization>> => {
-  return axiosInstance.get(`/api/org/${orgIdentifier}`).then(response => response.data);
+  return axiosInstance.get(`/api/org/${encodeURIComponent(orgIdentifier)}`).then(response => response.data);
 }
-
-/**
- * Save user to the backend
- * @param user 
- */
-export const saveUser = (user: { name?: string; email?: string; sub?: string; orgIdentifier?: string }): Promise<any> => {
-  return axiosInstance.post('/api/user', { user: { name: user.name, email: user.email }, organization: { orgIdentifier: user.orgIdentifier } });
-};
 
 /**
  * Fetches all organizations (supports search by name)
@@ -24,6 +35,7 @@ export const fetchOrganizations = async (searchTerm: string = ''): Promise<Parti
   const response = await axiosInstance.get('/api/orgs', searchTerm ? { params: { search: encodeURIComponent(searchTerm.trim()) } } : {});
   return response.data;
 };
+
 
 /**
  * Fetches the services for the organization
@@ -84,7 +96,7 @@ export const updateIncident = async (incident: Incident): Promise<Partial<Incide
 }
 
 export const deleteIncident = async (incidentIdentifier: string): Promise<void> => {
-  await axiosInstance.delete(`/api/incident/${incidentIdentifier}`);
+  return await axiosInstance.delete(`/api/incident/${incidentIdentifier}`);
 }
 
 
@@ -99,5 +111,21 @@ export const updateIncidentUpdate = async (incidentIdentifier: string, incidentU
 }
 
 export const deleteIncidentUpdate = async (incidentUpdateId: string): Promise<void> => {
-  await axiosInstance.delete(`/api/incident-update/${incidentUpdateId}`);
+  return await axiosInstance.delete(`/api/incident-update/${incidentUpdateId}`);
 }
+
+
+export const createOrganization = async (data: { name: string; userIdentifier: string }): Promise<Partial<Organization>> => {
+  const response = await axiosInstance.post('/api/org', data);
+  return response.data;
+};
+
+export const joinOrganization = async (data: { inviteCode: string; userIdentifier: string }): Promise<Partial<Organization>> => {
+  const response = await axiosInstance.post('/api/org/join', data);
+  return response.data;
+};
+
+export const fetchOrganizationByInviteCode = async (inviteCode: string): Promise<Partial<Organization>> => {
+  const response = await axiosInstance.get(`/api/org/check-invite`, { params: { inviteCode } });
+  return response.data;
+};

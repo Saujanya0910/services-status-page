@@ -9,8 +9,8 @@ import { toast } from 'react-toastify';
 import { capitalize } from 'lodash';
 
 export function ServiceManagement() {
-  const { serviceIdentifier } = useParams();
-  const { incidents, services, organization, fetchIncidents, addIncident, updateIncident, deleteIncident, addIncidentUpdate, updateIncidentUpdate, deleteIncidentUpdate } = useStore();
+  const { orgIdentifier, serviceIdentifier } = useParams();
+  const { currentUser, incidents, services, fetchIncidents, addIncident, updateIncident, deleteIncident, addIncidentUpdate, updateIncidentUpdate, deleteIncidentUpdate } = useStore();
   const service = services.find((s) => s.uuid === serviceIdentifier);
   const [isIncidentDialogOpen, setIsIncidentDialogOpen] = useState(false);
   const [isIncidentUpdateDialogOpen, setIsIncidentUpdateDialogOpen] = useState(false);
@@ -19,8 +19,16 @@ export function ServiceManagement() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (serviceIdentifier && organization?.uuid) {
-      fetchIncidents(organization.uuid);
+    if (!currentUser) {
+      navigate('/');
+    } else if(currentUser?.Organization?.name !== orgIdentifier) {
+      navigate(`/${currentUser.Organization?.name}/manage`);
+    }
+  }, [currentUser, orgIdentifier]);
+
+  useEffect(() => {
+    if (serviceIdentifier && orgIdentifier) {
+      fetchIncidents(orgIdentifier);
     }
   }, [serviceIdentifier, fetchIncidents]);
 
@@ -88,7 +96,7 @@ export function ServiceManagement() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold text-gray-900">Manage Service Incidents for {service?.name}</h1>
-      <Button onClick={() => navigate(`/${organization.name}/manage`)} className="mr-4">
+      <Button onClick={() => navigate(`/${orgIdentifier}/manage`)} className="mr-4">
         Back to Services
       </Button>
       <Button onClick={() => { setSelectedIncident(null); setIsIncidentDialogOpen(true); }}>

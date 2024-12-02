@@ -2,6 +2,7 @@ import React from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import useStore from '../store';
 import { LogOut, Settings, Bell } from 'lucide-react';
+import { useAuth0 } from '@auth0/auth0-react';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -10,10 +11,12 @@ interface LayoutProps {
 export function Layout({ children }: LayoutProps) {
   const { orgIdentifier } = useParams();
   const navigate = useNavigate();
-  const { currentUser, setCurrentUser } = useStore();
+  const { currentUser, resetAllState } = useStore();
+  const { logout } = useAuth0();
 
   const handleLogout = () => {
-    setCurrentUser(null);
+    logout({ localOnly: true });
+    resetAllState();
     navigate('/');
   };
 

@@ -11,6 +11,8 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Home } from './pages/Home';
 import { ServiceManagement } from './pages/ServiceManagement';
+import { CreateOrJoinOrg } from './pages/CreateOrJoinOrg';
+import { AuthCallback } from './pages/AuthCallback';
 
 function App() {
   return (
@@ -21,10 +23,13 @@ function App() {
           <Route path="/:orgIdentifier/status" element={<PublicStatusPage />} />
           <Route path="/:orgIdentifier/service/:serviceIdentifier/incidents" element={<Layout><ServiceIncidentsPage /></Layout>} />
           <Route path="/:orgIdentifier/login" element={<Login />} />
+          <Route path="/signup" element={<Login />} />
+          <Route path="/create-or-join-org" element={<CreateOrJoinOrg />} />
           <Route path="/:orgIdentifier/manage" element={<Layout><AdminDashboard /></Layout>} />
           <Route path="/:orgIdentifier/manage/service/:serviceIdentifier" element={<Layout><ServiceManagement /></Layout>} />
-          <Route path="*" element={<Navigate to="/page-not-found" replace />} />
+          <Route path="/callback" element={<AuthCallback />} />
           <Route path="/page-not-found" element={<NotFound />} />
+          <Route path="*" element={<Navigate to="/page-not-found" replace />} />
         </Routes>
         <ToastContainer /> {/* Add ToastContainer */}
       </AuthProvider>

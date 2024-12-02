@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 
 export function NotFound() {
@@ -8,9 +7,9 @@ export function NotFound() {
       <p className="mt-3 text-xl text-gray-500">
         Sorry, the page you are looking for does not exist.
       </p>
-      {/* <Link to="/" className="mt-6 text-blue-600 hover:underline">
+      <Link to="/" className="mt-6 text-blue-600 hover:underline">
         Go back to Home
-      </Link> */}
+      </Link>
     </div>
   );
 }

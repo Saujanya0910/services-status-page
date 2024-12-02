@@ -1,16 +1,21 @@
-
+import useStore from '@/store';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 export function Login() {
   const { loginWithRedirect, isAuthenticated } = useAuth0();
+  const { currentUser } = useStore();
   const navigate = useNavigate();
   const { orgIdentifier } = useParams();
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate(`/${orgIdentifier}/dashboard`);
+      if (currentUser?.Organization) {
+        navigate(`/${currentUser.Organization.name}/manage`);
+      } else {
+        navigate('/create-or-join-org');
+      }
     }
   }, [isAuthenticated, navigate]);
 

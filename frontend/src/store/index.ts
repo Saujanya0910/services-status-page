@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Service, Incident, IncidentUpdate, User, Organization } from '../types';
 import { 
+  createOrUpdateUser as createUserApi,
   fetchServices as fetchServicesApi, 
   fetchIncidentsByOrg as fetchIncidentsByOrgApi, 
   fetchIncidents as fetchIncidentsApi, 
@@ -20,12 +21,13 @@ interface AppState {
   organization: Organization;
   services: Service[];
   incidents: Incident[];
-  currentUser: User | null;
+  currentUser: (User & { Organization?: Partial<Organization> }) | null;
   isAuthenticated: boolean;
   setOrganization: (organization: Organization) => void;
   setServices: (services: Service[]) => void;
   setIncidents: (incidents: Incident[]) => void;
-  setCurrentUser: (user: User | null) => void;
+  createOrUpdateUser: (user: User) => Promise<User>;
+  setCurrentUser: (user: (User & { Organization?: Partial<Organization> }) | null) => void;
   fetchServices: (orgId: string) => void;
   updateServiceStatus: (serviceIdentifier: string, status: Service['status']) => void;
   addService: (orgIdentifier: string, service: Service) => Promise<void>;
@@ -53,6 +55,11 @@ const useStore = create(
       setOrganization: (organization) => set({ organization }),
       setServices: (services) => set({ services }),
       setIncidents: (incidents) => set({ incidents }),
+      createOrUpdateUser: async (user) => {
+        const newUser = await createUserApi(user);
+        set({ currentUser: user, isAuthenticated: !!user });
+        return newUser;
+      },
       setCurrentUser: (user) => set({ currentUser: user, isAuthenticated: !!user }),
       updateServiceStatus: async (serviceIdentifier, status) => {
         await updateServiceApi({ uuid: serviceIdentifier, status });

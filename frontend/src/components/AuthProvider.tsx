@@ -24,9 +24,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const response = await apiService.saveUser({
           name: user.name,
           email: user.email,
-          sub: user.sub,
-          orgIdentifier: organization.name,
-        });
+          auth0Id: user.sub
+        }, {});
         setCurrentUser(response.data);
       } catch (error) {
         console.error('Failed to save user to backend:', error);
@@ -35,23 +34,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     if (auth0Authenticated && user) {
       const mockUser = {
-        uuid: user.sub,
         email: user.email,
         name: user.name,
-        role: 'admin' as const,
-        organizationId: organization.name,
+        auth0Id: user.sub
       };
       setCurrentUser(mockUser);
       saveUserToBackend(mockUser);
-      navigate(`/${organization.name}/dashboard`);
+      navigate(`/${organization.name}/manage`);
     }
   }, [auth0Authenticated, user, setCurrentUser, navigate, organization.name]);
+
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      if (auth0Authenticated && user) {
+        navigate('/signup');
+      }
+    };
+
+    handleAuthCallback();
+  }, [auth0Authenticated, user, setCurrentUser, navigate]);
 
   return (
     <Auth0Provider
       domain={import.meta.env.VITE_AUTH0_DOMAIN}
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
-      redirectUri={`${import.meta.env.VITE_APP_URL}`}
+      redirectUri={`${window.location.origin}/callback`}
     >
       <AuthContext.Provider value={{ login: loginWithRedirect, logout: () => logout({ returnTo: window.location.origin }), isAuthenticated: auth0Authenticated }}>
         {children}

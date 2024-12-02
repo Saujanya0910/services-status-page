@@ -49,6 +49,7 @@ export interface User {
   email?: string;
   name?: string;
   role?: 'admin' | 'member';
-  organizationId?: string;
+  organizationId?: number | null;
+  auth0Id?: string | null;
   isActive?: boolean;
 }
