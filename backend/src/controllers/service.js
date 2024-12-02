@@ -17,14 +17,15 @@ const getServicesByOrg = async (req, res) => {
       where: {
         [Op.or]: [
           { uuid: orgIdentifier },
-          { name: { [Op.like]: orgIdentifier } }
+          { name: { [Op.like]: `%${orgIdentifier.trim().toLowerCase()}%` } }
         ],
         isActive: true
       },
       include: {
         model: Service,
-        attributes: { exclude: ['id', 'createdAt', 'organizationId', 'isActive'] },
-        where: { isActive: true }
+        attributes: { exclude: ['id', 'organizationId', 'isActive'] },
+        where: { isActive: true },
+        required: false
       }
     });
 
@@ -32,7 +33,9 @@ const getServicesByOrg = async (req, res) => {
       return res.status(404).json({ error: 'Organization not found' });
     }
 
-    return res.json(organization.Services);
+    const services = organization.Services;
+
+    return res.status(services.length ? 200 : 404).json(organization.Services);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });

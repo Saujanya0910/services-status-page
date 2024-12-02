@@ -40,13 +40,22 @@ const getOrganizationByUuid = async (req, res) => {
  */
 const createOrganization = async (req, res) => {
   try {
-    const { name, createdBy } = req.body;
+    const { name, userIdentifier } = req.body;
 
-    if (!name || !createdBy) {
-      return res.status(400).json({ error: 'Name and createdBy are required' });
+    if (!name || !userIdentifier) {
+      return res.status(400).json({ error: 'Name and userIdentifier are required' });
     }
 
-    const user = await User.findByPk(createdBy);
+    const user = await User.findOne({
+      where: { 
+        [Op.or]: [
+          { uuid: userIdentifier }, 
+          { email: userIdentifier }
+        ], 
+        isActive: true, 
+        organizationId: null 
+      }
+    });
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
@@ -56,13 +65,70 @@ const createOrganization = async (req, res) => {
       createdBy: user.id
     });
 
-    await user.update({ organizationId: organization.id });
+    await user.update({ organizationId: organization.id, role: 'admin' });
 
-    res.status(201).json(organization);
+    return res.status(201).json({ uuid: organization.uuid, name: organization.name, createdAt: organization.createdAt });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
   }
 };
+
+/**
+ * Join an organization by invite code
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+const joinOrganization = async (req, res) => {
+  try {
+    const { inviteCode, userIdentifier } = req.body;
+    if(!inviteCode || !userIdentifier) {
+      return res.status(400).json({ error: 'Invite code and user identifier are required' });
+    }
+
+    let user = await User.findOne({ where: { uuid: userIdentifier } });
+    const organization = await Organization.findOne({
+      where: {
+        inviteCode: inviteCode,
+        isActive: true
+      }
+    });
+    if (!organization) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
+
+    await user.update({ organizationId: organization.id, role: 'member' });
+    
+    return res.status(201).json({ uuid: user.uuid, email: user.email, name: user.name, role: user.role });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+/**
+ * Check if an invite code is valid
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
+const checkInviteCode = async (req, res) => {
+  try {
+    const { inviteCode } = req.query;
+    if (!inviteCode) {
+      return res.status(400).json({ error: 'Invite code is required' });
+    }
+
+    const organization = await Organization.findOne({ where: { inviteCode }, isActive: true });
+    if (!organization) {
+      return res.status(404).json({ error: 'Organization not found' });
+    }
+
+    return res.json({ uuid: organization.uuid, name: organization.name });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
 
 /**
  * Get organization details by identifier (UUID or name)
@@ -80,8 +146,8 @@ const getOrgByIdentifier = async (req, res) => {
       attributes: ['uuid', 'name', 'createdAt'],
       where: {
         [Op.or]: [
-          { uuid: orgIdentifier.trim().toLowerCase() },
-          { name: { [Op.like]: orgIdentifier.trim().toLowerCase() } }
+          { uuid: orgIdentifier.trim() },
+          { name: { [Op.like]: `%${decodeURIComponent(orgIdentifier.trim().toLowerCase())}%` } }
         ]
       },
       include: {
@@ -125,6 +191,8 @@ const getAllOrganizations = async (req, res) => {
 module.exports = {
   getOrganizationByUuid,
   createOrganization,
+  joinOrganization,
+  checkInviteCode,
   getOrgByIdentifier,
   getAllOrganizations
 };

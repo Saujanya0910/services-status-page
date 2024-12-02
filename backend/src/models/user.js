@@ -31,8 +31,12 @@ module.exports = (sequelize) => {
       allowNull: false,
     },
     organizationId: {
-      type: DataTypes.UUID,
-      allowNull: false,
+      type: DataTypes.INTEGER,
+      defaultValue: null,
+      references: {
+        model: 'Organization',
+        key: 'id'
+      }
     },
     auth0Id: {
       type: DataTypes.STRING,

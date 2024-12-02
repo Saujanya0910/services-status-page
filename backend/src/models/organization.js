@@ -28,6 +28,14 @@ module.exports = (sequelize) => {
         key: 'id'
       }
     },
+    inviteCode: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      defaultValue: () => {
+        return require('crypto').randomBytes(4).toString('hex');
+      },
+    },
     createdAt: {
       type: DataTypes.DATE,
       allowNull: false,

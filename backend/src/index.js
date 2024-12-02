@@ -12,7 +12,7 @@ const app = express();
 const PORT = process.env.APP_PORT || 3000;
 
 const corsOptions = {
-  origin: process.env.CORS_ORIGIN ? process.env.CORS_ORIGIN.split(',').filter(Boolean) : '*'
+  origin: process.env.APP_CORS_ORIGIN ? process.env.APP_CORS_ORIGIN.split(',').filter(Boolean) : '*'
 };
 app.use(cors(corsOptions));
 app.use(express.json());
