@@ -38,10 +38,14 @@ export function IncidentDialog({ open, onOpenChange, incident, onSave, serviceId
       title,
       description,
       status,
-      severity: incident?.severity || 'minor',
+      severity,
       updatedAt: new Date(),
     };
     onSave(newIncident);
+    setTitle('');
+    setDescription('');
+    setStatus('investigating');
+    setSeverity('minor');
   };
 
   return (
@@ -92,6 +96,22 @@ export function IncidentDialog({ open, onOpenChange, incident, onSave, serviceId
               <option value="identified">Identified</option>
               <option value="monitoring">Monitoring</option>
               <option value="resolved">Resolved</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium text-gray-700">
+              Severity
+            </label>
+            <select
+              id="severity"
+              value={severity}
+              onChange={(e) => setSeverity(e.target.value as 'minor' | 'major' | 'critical')}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+              required
+            >
+              <option value="minor">Minor</option>
+              <option value="major">Major</option>
+              <option value="critical">Critical</option>
             </select>
           </div>
           <DialogFooter>

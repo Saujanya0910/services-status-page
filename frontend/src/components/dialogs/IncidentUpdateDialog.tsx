@@ -34,6 +34,8 @@ export function IncidentUpdateDialog({ open, onOpenChange, incidentUpdate, onSav
       updatedAt: new Date(),
     };
     onSave(newUpdate);
+    setMessage('');
+    setStatus('investigating');
   };
 
   return (

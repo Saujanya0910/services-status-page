@@ -248,7 +248,7 @@ const deleteService = async (req, res) => {
 const addIncidentUpdate = async (req, res) => {
   try {
     const { incidentIdentifier } = req.params;
-    const { message } = req.body;
+    const { message, status } = req.body;
     const userId = req.userId;
 
     if (!incidentIdentifier) {
@@ -275,9 +275,9 @@ const addIncidentUpdate = async (req, res) => {
       return res.status(404).json({ error: 'Incident not found' });
     }
 
-    const update = await IncidentUpdate.create({ message, incidentId: incident.id, createdBy: userId });
+    const update = await IncidentUpdate.create({ message, status, incidentId: incident.id, createdBy: userId });
 
-    sendEvent('incidentUpdateCreated', { orgIdentifier: incident.Service.Organization.name, serviceIdentifier: incident.Service.uuid, incidentIdentifier, uuid: update.uuid, message, createdAt: update.createdAt });
+    sendEvent('incidentUpdateCreated', { orgIdentifier: incident.Service.Organization.name, serviceIdentifier: incident.Service.uuid, incidentIdentifier, uuid: update.uuid, message, status, createdAt: update.createdAt });
 
     return res.status(201).json({ uuid: update.uuid, message });
   } catch (error) {
@@ -294,7 +294,7 @@ const addIncidentUpdate = async (req, res) => {
 const updateIncidentUpdate = async (req, res) => {
   try {
     const { incidentIdentifier, updateIdentifier } = req.params;
-    const { message } = req.body;
+    const { message, status } = req.body;
     const userId = req.userId;
 
     if (!incidentIdentifier || !updateIdentifier) {
@@ -326,7 +326,7 @@ const updateIncidentUpdate = async (req, res) => {
       return res.status(404).json({ error: 'Incident update not found' });
     }
 
-    await update.update({ message, updatedBy: userId });
+    await update.update({ message, status, updatedBy: userId });
 
     sendEvent('incidentUpdateUpdated', { orgIdentifier: incident.Service.Organization.name, serviceIdentifier: incident.Service.uuid, incidentIdentifier, uuid: update.uuid, message, updatedAt: update.updatedAt });
 
