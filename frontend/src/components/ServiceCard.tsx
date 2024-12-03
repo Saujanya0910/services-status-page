@@ -1,6 +1,7 @@
 import { format } from 'date-fns';
 import type { Service, ServiceStatus } from '../types';
-import { statusIcons, statusText } from '@/constants';
+import { statusText } from '@/constants';
+import { Chip } from '../components/ui/chip';
 
 interface ServiceCardProps {
   service: Service;
@@ -15,10 +16,17 @@ export function ServiceCard({ service, onClick, onEdit, onDelete, onUpdateStatus
     <div className="bg-white shadow rounded-lg p-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center hover:underline" onClick={onClick}>
-          {service.status && statusIcons[service.status]}
-          <div className="ml-3 hover:underline">
+          <div className="hover:underline">
             <h3 className="text-lg font-medium text-gray-900">{service.name}</h3>
-            <p className="text-sm text-gray-500">{statusText[service.status ?? 'operational']}</p>
+            <div className="mt-2">
+              <Chip status={
+                service.status === 'partial_outage' ? 'degraded' : 
+                service.status === 'down' ? 'down' : 
+                service.status ?? 'operational'
+              }>
+                {statusText[service.status as keyof typeof statusText ?? 'operational']}
+              </Chip>
+            </div>
           </div>
         </div>
         <span className="text-sm text-gray-500 hover:underline">

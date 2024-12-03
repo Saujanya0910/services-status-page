@@ -7,6 +7,7 @@ export const statusIcons = {
   partial_outage: React.createElement(AlertCircle, { className: 'h-6 w-6 text-orange-500' }),
   major_outage: React.createElement(XCircle, { className: 'h-6 w-6 text-red-500' }),
   outage: React.createElement(XCircle, { className: 'h-6 w-6 text-red-500' }),
+  down: React.createElement(XCircle, { className: 'h-6 w-6 text-red-500' }),
 };
 
 export const statusText = {
@@ -15,6 +16,7 @@ export const statusText = {
   partial_outage: 'Partial Outage',
   major_outage: 'Major Outage',
   outage: 'Outage',
+  down: 'Service Down',
 };
 
 export const statusColors = {
@@ -23,6 +25,7 @@ export const statusColors = {
   outage: 'bg-red-500 text-white',
   partial_outage: 'bg-orange-500 text-white',
   default: 'bg-gray-500 text-white',
+  down: 'bg-red-500 text-white'
 };
 
 export const STATUS_STYLES = {

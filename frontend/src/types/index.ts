@@ -1,4 +1,4 @@
-export type ServiceStatus = 'operational' | 'degraded' | 'partial_outage' | 'outage';
+export type ServiceStatus = 'operational' | 'degraded' | 'partial_outage' | 'outage' | 'down';
 
 export interface Organization {
   id?: number;

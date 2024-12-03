@@ -131,8 +131,12 @@ export function PublicStatusPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center">
-                      <Chip status={service.status ?? 'operational'}>
-                        {statusText[service.status ?? 'operational']}
+                      <Chip status={
+                        service.status === 'partial_outage' ? 'degraded' : 
+                        service.status === 'down' ? 'down' : 
+                        service.status ?? 'operational'
+                      }>
+                        {statusText[service.status as keyof typeof statusText ?? 'operational']}
                       </Chip>
                     </div>
                     <div className="text-sm text-gray-500">

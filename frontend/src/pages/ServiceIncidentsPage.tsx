@@ -158,7 +158,11 @@ export function ServiceIncidentsPage() {
             <h2 className="text-2xl font-bold text-gray-900">{service.name}</h2>
             <p className="mt-2 text-base text-gray-500">{service.description}</p>
             <div className="mt-4 flex items-center">
-              <Chip status={service.status === 'partial_outage' ? 'degraded' : service.status ?? 'operational'}>
+              <Chip status={
+                service.status === 'partial_outage' ? 'degraded' : 
+                service.status === 'down' ? 'down' : 
+                service.status ?? 'operational'
+              }>
                 {statusText[service.status as keyof typeof statusText]}
               </Chip>
             </div>
