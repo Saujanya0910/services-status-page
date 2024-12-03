@@ -17,7 +17,7 @@ export function AuthCallback() {
       };
       createOrUpdateUser(mockUser).then((receivedUserDetails) => {
         setCurrentUser(receivedUserDetails);
-        navigate('/signup');
+        navigate('/create-or-join-org');
       });
     }
   }, [isAuthenticated, user, setCurrentUser, navigate]);
