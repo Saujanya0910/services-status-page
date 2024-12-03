@@ -74,7 +74,7 @@ export const deleteService = async (serviceId: string): Promise<void> => {
  * @param serviceIdentifier
  */
 export const fetchIncidents = (serviceIdentifier: string): Promise<Partial<Incident>[]> => {
-  return axiosInstance.get(`/public/api/service/${serviceIdentifier}/incidents`).then(response => response.data);
+  return axiosInstance.get(`/api/public/service/${serviceIdentifier}/incidents`).then(response => response.data);
 };
 
 /**
