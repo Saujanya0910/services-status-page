@@ -31,6 +31,7 @@ module.exports = (sequelize) => {
     severity: {
       type: DataTypes.ENUM('minor', 'major', 'critical'),
       allowNull: false,
+      defaultValue: 'minor'
     },
     createdBy: {
       type: DataTypes.INTEGER,

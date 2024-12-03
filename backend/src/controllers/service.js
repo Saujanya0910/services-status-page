@@ -1,5 +1,6 @@
 const { Service, Organization, Incident, IncidentUpdate } = require('../models');
 const { Op } = require('sequelize');
+const { sendEvent } = require('./server-sent-events');
 
 /**
  * Get all services of an organization by name or UUID
@@ -136,6 +137,7 @@ const addService = async (req, res) => {
   try {
     const { orgIdentifier } = req.params;
     const { name, description, status } = req.body;
+    const userId = req.userId;
 
     if (!name || !status || !orgIdentifier) {
       return res.status(400).json({ error: 'Name, status, and orgIdentifier are required' });
@@ -150,8 +152,11 @@ const addService = async (req, res) => {
       name,
       description,
       status,
-      organizationId: organization.id
+      organizationId: organization.id,
+      createdBy: userId
     });
+
+    sendEvent('serviceCreated', { orgIdentifier: organization.name, uuid: service.uuid, name: service.name, description, status, createdAt: service.createdAt });
 
     return res.status(201).json({ uuid: service.uuid, name: service.name, description, status, createdAt: service.createdAt });
   } catch (error) {
@@ -169,6 +174,7 @@ const updateService = async (req, res) => {
   try {
     const { serviceIdentifier } = req.params;
     const { name, description, status } = req.body;
+    const userId = req.userId;
 
     if (!serviceIdentifier) {
       return res.status(400).json({ error: 'Service ID is required' });
@@ -181,7 +187,8 @@ const updateService = async (req, res) => {
           { name: { [Op.like]: serviceIdentifier } }
         ],
         isActive: true
-      }
+      },
+      include: [{ model: Organization, attributes: ['name'], where: { isActive: true } }]
     });
     if (!service) {
       return res.status(404).json({ error: 'Service not found' });
@@ -190,8 +197,11 @@ const updateService = async (req, res) => {
     await service.update({
       name: name || service.name,
       description: description || service.description,
-      status: status || service.status
+      status: status || service.status,
+      updatedBy: userId
     });
+
+    sendEvent('serviceUpdated', { orgIdentifier: service.Organization.name, uuid: service.uuid, name: service.name, description: service.description, status: service.status, updatedAt: service.updatedAt });
 
     return res.json({ uuid: service.uuid, name: service.name, description: service.description, status: service.status, updatedAt: service.updatedAt });
   } catch (error) {
@@ -208,6 +218,7 @@ const updateService = async (req, res) => {
 const deleteService = async (req, res) => {
   try {
     const { serviceId } = req.params;
+    const userId = req.userId;
 
     if (!serviceId) {
       return res.status(400).json({ error: 'Service ID is required' });
@@ -218,7 +229,9 @@ const deleteService = async (req, res) => {
       return res.status(404).json({ error: 'Service not found' });
     }
 
-    await service.update({ isActive: false });
+    await service.update({ isActive: false, updatedBy: userId });
+
+    sendEvent('serviceDeleted', { orgIdentifier: service.Organization.name, uuid: service.uuid });
 
     res.status(204).send();
   } catch (error) {
@@ -227,10 +240,16 @@ const deleteService = async (req, res) => {
   }
 };
 
+/**
+ * Add an update to an incident
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 const addIncidentUpdate = async (req, res) => {
   try {
     const { incidentIdentifier } = req.params;
     const { message } = req.body;
+    const userId = req.userId;
 
     if (!incidentIdentifier) {
       return res.status(400).json({ error: 'Service ID and Incident ID are required' });
@@ -240,12 +259,26 @@ const addIncidentUpdate = async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const incident = await Incident.findOne({ where: { uuid: incidentIdentifier } });
+    const incident = await Incident.findOne({ 
+      where: { uuid: incidentIdentifier } ,
+      include: [{ 
+        model: Service, 
+        attributes: ['uuid', 'organizationId'] ,
+
+        include: [{
+          model: Organization,
+          attributes: ['name']
+        }]
+      }]
+    });
     if (!incident) {
       return res.status(404).json({ error: 'Incident not found' });
     }
 
-    const update = await IncidentUpdate.create({ message, incidentId: incident.id });
+    const update = await IncidentUpdate.create({ message, incidentId: incident.id, createdBy: userId });
+
+    sendEvent('incidentUpdateCreated', { orgIdentifier: incident.Service.Organization.name, serviceIdentifier: incident.Service.uuid, incidentIdentifier, uuid: update.uuid, message, createdAt: update.createdAt });
+
     return res.status(201).json({ uuid: update.uuid, message });
   } catch (error) {
     console.error(error);
@@ -253,10 +286,16 @@ const addIncidentUpdate = async (req, res) => {
   }
 }
 
+/**
+ * Update an incident update
+ * @param {import('express').Request} req
+ * @param {import('express').Response} res
+ */
 const updateIncidentUpdate = async (req, res) => {
   try {
     const { incidentIdentifier, updateIdentifier } = req.params;
     const { message } = req.body;
+    const userId = req.userId;
 
     if (!incidentIdentifier || !updateIdentifier) {
       return res.status(400).json({ error: 'Incident ID and Update ID are required' });
@@ -266,7 +305,18 @@ const updateIncidentUpdate = async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
 
-    const incident = await Incident.findOne({ where: { uuid: incidentIdentifier } });
+    const incident = await Incident.findOne({ 
+      where: { uuid: incidentIdentifier },
+      include: [{ 
+        model: Service, 
+        attributes: ['uuid'],
+
+        include: [{
+          model: Organization,
+          attributes: ['name']
+        }]
+      }]
+    });
     if (!incident) {
       return res.status(404).json({ error: 'Incident not found' });
     }
@@ -276,7 +326,10 @@ const updateIncidentUpdate = async (req, res) => {
       return res.status(404).json({ error: 'Incident update not found' });
     }
 
-    await update.update({ message });
+    await update.update({ message, updatedBy: userId });
+
+    sendEvent('incidentUpdateUpdated', { orgIdentifier: incident.Service.Organization.name, serviceIdentifier: incident.Service.uuid, incidentIdentifier, uuid: update.uuid, message, updatedAt: update.updatedAt });
+
     return res.json({ uuid: update.uuid, message });
   } catch (error) {
     console.error(error);
@@ -292,13 +345,32 @@ const updateIncidentUpdate = async (req, res) => {
 const deleteIncidentUpdate = async (req, res) => {
   try {
     const { updateIdentifier } = req.params;
+    const userId = req.userId;
 
-    const update = await IncidentUpdate.findOne({ where: { uuid: updateIdentifier } });
+    const update = await IncidentUpdate.findOne({ 
+      where: { uuid: updateIdentifier } ,
+      include: [{ 
+        model: Incident,
+        attributes: ['uuid', 'serviceId'],
+
+        include: [{
+          model: Service,
+          attributes: ['uuid'],
+
+          include: [{
+            model: Organization,
+            attributes: ['name']
+          }]
+        }]
+      }]
+    });
     if (!update) {
       return res.status(404).json({ error: 'Incident update not found' });
     }
 
-    await update.update({ isActive: false });
+    await update.update({ isActive: false, updatedBy: userId });
+
+    sendEvent('incidentUpdateDeleted', { orgIdentifier: update.Incident.Service.Organization.name, serviceIdentifier: update.Incident.Service.uuid, incidentIdentifier: update.Incident.uuid, uuid: update.uuid });
 
     return res.status(204).send();
   } catch (error) {

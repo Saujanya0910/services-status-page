@@ -1,5 +1,6 @@
 const { Organization, User } = require('../models');
 const { Op } = require('sequelize');
+const { sendEvent } = require('./server-sent-events');
 
 /**
  * Get organization details by UUID
@@ -66,6 +67,8 @@ const createOrganization = async (req, res) => {
     });
 
     await user.update({ organizationId: organization.id, role: 'admin' });
+
+    sendEvent('organizationCreated', { uuid: organization.uuid, name: organization.name, createdAt: organization.createdAt });
 
     return res.status(201).json({ uuid: organization.uuid, name: organization.name, createdAt: organization.createdAt });
   } catch (error) {
@@ -269,6 +272,8 @@ const getOrgInviteCode = async (req, res) => {
 const regenerateOrgInviteCode = async (req, res) => {
   try {
     const { orgIdentifier } = req.params;
+    const userId = req.userId;
+
     if (!orgIdentifier) {
       return res.status(400).json({ error: 'Organization UUID is required' });
     }
@@ -287,7 +292,7 @@ const regenerateOrgInviteCode = async (req, res) => {
       return res.status(404).json({ error: 'Organization not found' });
     }
 
-    await organization.update({ inviteCode: require('crypto').randomBytes(4).toString('hex') });
+    await organization.update({ inviteCode: require('crypto').randomBytes(4).toString('hex'), updatedBy: userId });
 
     return res.json({ uuid: organization.uuid, name: organization.name, inviteCode: organization.inviteCode });
   } catch (error) {

@@ -44,15 +44,22 @@ const getUserByUuid = async (req, res) => {
 const createOrUpdateUser = async (req, res) => {
   try {
     const { name, email, auth0Id, orgIdentifier } = req.body;
-    let user = await User.findOne({ where: { [Op.or]: [{ email }].concat(auth0Id ? [{ auth0Id }] : []) } });
+    let user = await User.findOne({ 
+      where: { [Op.or]: [{ email }].concat(auth0Id ? [{ auth0Id }] : []) },
+      include: [{
+        model: Organization,
+        attributes: ['uuid', 'name'],
+        required: false
+      }]
+    });
     let isNewUser = false;
     let organization = null;
     if(orgIdentifier) {
-      organization = await require('../models').Organization.findOne({
+      organization = await Organization.findOne({
         where: {
           [Op.or]: [
             { uuid: orgIdentifier },
-            { name: orgIdentifier }
+            { name: { [Op.like]: `%${orgIdentifier.trim().toLowerCase()}%` } }
           ]
         }
       })
@@ -64,7 +71,7 @@ const createOrUpdateUser = async (req, res) => {
       await user.update({ name, email, auth0Id, isActive: true, ...(organization ? { organizationId: organization.id } : {}) });
     }
 
-    return res.status(isNewUser ? 201 : 200).json({ uuid: user.uuid, email: user.email, name: user.name, role: user.role, ...(organization ? { Organization: { uuid: organization.uuid, name: organization.name } } : null) });
+    return res.status(isNewUser ? 201 : 200).json({ uuid: user.uuid, email: user.email, name: user.name, role: user.role, ...(organization ? { Organization: { uuid: organization.uuid, name: organization.name } } : user.Organization ? { Organization: user.Organization } : null) });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
