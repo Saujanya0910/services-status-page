@@ -1,6 +1,6 @@
 const express = require('express');
 const incidentController = require('../controllers/incident');
-const userAuthMiddleware = require('../middleware/userauth');
+const userAuthMiddleware = require('../middleware/userAuth');
 const router = express.Router();
 
 router.get('/org/:orgIdentifier/incidents', incidentController.getIncidentsByOrg);

@@ -1,6 +1,6 @@
 const express = require('express');
 const serviceController = require('../controllers/service');
-const userAuthMiddleware = require('../middleware/userauth');
+const userAuthMiddleware = require('../middleware/userAuth');
 const router = express.Router();
 
 router.get('/public/org/:orgIdentifier/services', serviceController.getServicesByOrg);
