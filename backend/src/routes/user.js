@@ -3,9 +3,10 @@ const userController = require('../controllers/user');
 const userAuthMiddleware = require('../middleware/userauth');
 const router = express.Router();
 
+router.post('/user', userController.createOrUpdateUser);
+
 router.use(userAuthMiddleware);
 
-router.post('/user', userController.createOrUpdateUser);
 router.put('/user/:userIdentifier', userController.updateUser);
 
 module.exports = router;

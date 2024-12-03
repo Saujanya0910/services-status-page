@@ -3,10 +3,10 @@ const serviceController = require('../controllers/service');
 const userAuthMiddleware = require('../middleware/userauth');
 const router = express.Router();
 
-router.get('/org/:orgIdentifier/services', serviceController.getServicesByOrg);
-router.get('/service/:serviceIdentifier', serviceController.getServiceByIdentifier);
+router.get('/public/org/:orgIdentifier/services', serviceController.getServicesByOrg);
+router.get('/public/service/:serviceIdentifier', serviceController.getServiceByIdentifier);
 
-router.get('/service/:serviceIdentifier/incidents', serviceController.getIncidentsByService);
+router.get('/public/service/:serviceIdentifier/incidents', serviceController.getIncidentsByService);
 
 router.use(userAuthMiddleware);
 

@@ -26,14 +26,14 @@ export const updateUser = async (user: Partial<User>) => {
  * @param orgIdentifier 
  */
 export const fetchOrganization = (orgIdentifier: string): Promise<Partial<Organization>> => {
-  return axiosInstance.get(`/api/org/${encodeURIComponent(orgIdentifier)}`).then(response => response.data);
+  return axiosInstance.get(`/api/public/org/${encodeURIComponent(orgIdentifier)}`).then(response => response.data);
 }
 
 /**
  * Fetches all organizations (supports search by name)
  */
 export const fetchOrganizations = async (searchTerm: string = ''): Promise<Partial<Organization>[]> => {
-  const response = await axiosInstance.get('/api/orgs', searchTerm ? { params: { search: encodeURIComponent(searchTerm.trim()) } } : {});
+  const response = await axiosInstance.get('/api/public/orgs', searchTerm ? { params: { search: encodeURIComponent(searchTerm.trim()) } } : {});
   return response.data;
 };
 
@@ -43,7 +43,7 @@ export const fetchOrganizations = async (searchTerm: string = ''): Promise<Parti
  * @param orgIdentifier 
  */
 export const fetchServices = (orgIdentifier: string): Promise<Partial<Service>[]> => {
-  return axiosInstance.get(`/api/org/${orgIdentifier}/services`).then(response => response.data);
+  return axiosInstance.get(`/api/public/org/${orgIdentifier}/services`).then(response => response.data);
 };
 
 /**
@@ -51,7 +51,7 @@ export const fetchServices = (orgIdentifier: string): Promise<Partial<Service>[]
  * @param serviceIdentifier 
  */
 export const fetchService = (serviceIdentifier: string): Promise<Partial<Service>> => {
-  return axiosInstance.get(`/api/service/${serviceIdentifier}`).then(response => response.data);
+  return axiosInstance.get(`/api/public/service/${serviceIdentifier}`).then(response => response.data);
 };
 
 export const createService = async (orgIdentifier: string, service: Service): Promise<Partial<Service>> => {
@@ -74,7 +74,7 @@ export const deleteService = async (serviceId: string): Promise<void> => {
  * @param serviceIdentifier
  */
 export const fetchIncidents = (serviceIdentifier: string): Promise<Partial<Incident>[]> => {
-  return axiosInstance.get(`/api/service/${serviceIdentifier}/incidents`).then(response => response.data);
+  return axiosInstance.get(`/public/api/service/${serviceIdentifier}/incidents`).then(response => response.data);
 };
 
 /**
@@ -82,7 +82,7 @@ export const fetchIncidents = (serviceIdentifier: string): Promise<Partial<Incid
  * @param orgIdentifier 
  */
 export const fetchIncidentsByOrg = async (orgIdentifier: string): Promise<Partial<Incident>[]> => {
-  const response = await axiosInstance.get(`/api/org/${orgIdentifier}/incidents`);
+  const response = await axiosInstance.get(`/api/public/org/${orgIdentifier}/incidents`);
   return response.data;
 }
 
