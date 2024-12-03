@@ -73,12 +73,24 @@ DATABASE_PASSWORD=<YOUR-DATABASE-PASSWORD>
 DATABASE_NAME=<YOUR-DATABASE-NAME>
 ```
 
+## Additional Development Information
+ - Fast-tracked development by using a monorepo structure
+ - Fast-tracked development by using LLMs like Bolt.new, GPT-3, Claude 3.5 Sonnet, etc
+
 ## Available Features
 1. Public view page for real-time service status updates
 2. Admin view page for managing services and incidents
 3. User Authentication using Auth0
 4. Multi-tenant organization structure
-5. Invite users to join an organization
+5. Invite users to join an organization (currently only using a shared invite code)
+6. Real-time data updates using Server-Sent Events (SSE)
+
+## Future Scope
+1. As a user, be able to create or join multiple organizations.
+2. Invite users via email
+3. Increased set of roles and privileges
+3. As an admin, be able to create and manage multiple organizations, grant users specific roles & privileges
+4. Subscribe to incidents and receive notifications via email
 
 ## License
 
