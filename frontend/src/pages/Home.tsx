@@ -4,6 +4,7 @@ import * as apiService from '../services/api';
 import { Organization } from '@/types';
 import { Bell } from 'lucide-react';
 import useStore from '@/store';
+import connectEventSource from '@/lib/server-sent-events';
 
 export function Home() {
   const navigate = useNavigate();
@@ -22,6 +23,18 @@ export function Home() {
     };
 
     fetchOrganizations();
+
+    // Add event listeners for specific events
+    const eventSource = connectEventSource();
+
+    eventSource.addEventListener('organizationCreated', (event) => {
+      const data = JSON.parse(event.data);
+      setOrganizations((orgs) => [...orgs, data]);
+    })
+
+    return () => {
+      eventSource.close();
+    }
   }, []);
 
   return (

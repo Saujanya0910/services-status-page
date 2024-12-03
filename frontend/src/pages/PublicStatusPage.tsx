@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../co
 import { statusText } from '@/constants';
 import { capitalize } from 'lodash';
 import { Chip } from '../components/ui/chip';
+import connectEventSource from '@/lib/server-sent-events';
 
 export function PublicStatusPage() {
   const { orgIdentifier } = useParams();
@@ -20,36 +21,66 @@ export function PublicStatusPage() {
       return;
     }
 
-    resetStatuses(); // Reset statuses everytime the user lands on the public status page
+    resetStatuses();
 
-    const fetchOrg = async () => {
-      try {
-        const response = await apiService.fetchOrganization(orgIdentifier);
-        if (!response) {
-          toast.error('Failed to fetch organization data');
-          navigate('/page-not-found');
-          return;
-        }
-        setOrganization(response);
-      } catch (error) {
-        console.error('Failed to fetch org:', error);
+    const fetchData = async () => {
+      const [orgResponse, servicesResponse] = await Promise.all([
+        apiService.fetchOrganization(orgIdentifier),
+        apiService.fetchServices(orgIdentifier)
+      ]);
+
+      if (!orgResponse) {
         toast.error('Failed to fetch organization data');
         navigate('/page-not-found');
+        return;
       }
-    }
 
-    const fetchServices = async () => {
-      try {
-        const servicesResponse = await apiService.fetchServices(orgIdentifier);
-        setServices(servicesResponse);
-      } catch (error) {
-        console.error('Failed to fetch services:', error);
-        toast.error('Failed to fetch services');
-      }
+      setOrganization(orgResponse);
+      setServices(servicesResponse);
     };
 
-    fetchOrg().then(() => fetchServices());
-  }, [orgIdentifier, setServices, navigate]);
+    fetchData();
+
+    // Add event listeners for specific events
+    const eventSource = connectEventSource();
+
+    eventSource.addEventListener('serviceCreated', (event) => {
+      const data = JSON.parse(event.data);
+      const isMsgForCurrentOrg = data.orgIdentifier?.toLowerCase() === orgIdentifier.toLowerCase();
+      if (!isMsgForCurrentOrg) return;
+      setServices([...services, { uuid: data.uuid, name: data.name, description: data.description, status: data.status, updatedAt: data.updatedAt }]);
+    });
+
+    eventSource.addEventListener('serviceUpdated', (event) => {
+      const data = JSON.parse(event.data);
+      const isMsgForCurrentOrg = data.orgIdentifier?.toLowerCase() === orgIdentifier.toLowerCase();
+      if (!isMsgForCurrentOrg) return;
+      const updatedServices = services.map((service) => {
+        if (service.uuid === data.uuid) {
+          return { uuid: data.uuid, name: data.name, description: data.description, status: data.status, updatedAt: data.updatedAt };
+        }
+        return service;
+      });
+      setServices(updatedServices);
+    });
+
+    eventSource.addEventListener('serviceDeleted', (event) => {
+      const data = JSON.parse(event.data);
+      const isMsgForCurrentOrg = data.orgIdentifier?.toLowerCase() === orgIdentifier.toLowerCase();
+      if (!isMsgForCurrentOrg) return;
+      const updatedServices = services.filter((service) => service.uuid !== data.uuid);
+      setServices(updatedServices);
+    });
+
+    // Error handling
+    eventSource.onerror = (error) => {
+      console.error('EventSource failed:', error);
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  }, [orgIdentifier, navigate, setOrganization, setServices]);
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">

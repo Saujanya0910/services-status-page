@@ -21,12 +21,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saveUserToBackend = async (user: (User & { sub?: string })) => {
       try {
-        const response = await apiService.saveUser({
+        const response = await apiService.createOrUpdateUser({
           name: user.name,
           email: user.email,
           auth0Id: user.sub
-        }, {});
-        setCurrentUser(response.data);
+        });
+        setCurrentUser(response);
       } catch (error) {
         console.error('Failed to save user to backend:', error);
       }
@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       domain={import.meta.env.VITE_AUTH0_DOMAIN}
       clientId={import.meta.env.VITE_AUTH0_CLIENT_ID}
       redirectUri={`${window.location.origin}/callback`}
+      maxAge={43200}
     >
       <AuthContext.Provider value={{ login: loginWithRedirect, logout: () => logout({ returnTo: window.location.origin }), isAuthenticated: auth0Authenticated }}>
         {children}

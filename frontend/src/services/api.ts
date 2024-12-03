@@ -2,6 +2,7 @@ import { Incident, IncidentUpdate, Organization, Service, User } from '@/types';
 import axiosInstance from './index';
 
 /**
+ * @deprecated Use `createOrUpdateUser` instead
  * Save user to the backend
  * @param user 
  */

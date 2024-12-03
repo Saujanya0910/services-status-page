@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button';
 import { IncidentListItem } from '../components/IncidentListItem';
 import { statusText } from '../constants/index';
 import { Chip } from '../components/ui/chip';
+import connectEventSource from '@/lib/server-sent-events';
 
 export function ServiceIncidentsPage() {
   const { orgIdentifier, serviceIdentifier } = useParams();
@@ -53,6 +54,94 @@ export function ServiceIncidentsPage() {
       fetchService();
     }
     fetchServiceIncidents();
+
+    // Add event listeners for specific events
+    const eventSource = connectEventSource();
+
+    eventSource.addEventListener('incidentCreated', (event) => {
+      if(orgIdentifier) {
+        const data = JSON.parse(event.data);
+        const isMsgForCurrentOrg = data.orgIdentifier?.toLowerCase() === orgIdentifier.toLowerCase();
+        if (!isMsgForCurrentOrg) return;
+        setIncidents([...incidents, { uuid: data.uuid, title: data.title }]);
+      }
+    });
+    eventSource.addEventListener('incidentUpdated', (event) => {
+      if(orgIdentifier) {
+        const data = JSON.parse(event.data);
+        const isMsgForCurrentOrg = data.orgIdentifier?.toLowerCase() === orgIdentifier.toLowerCase();
+        if (!isMsgForCurrentOrg) return;
+        const updatedServices = incidents.map((service) => {
+          if (service.uuid === data.uuid) {
+            return { uuid: data.uuid, title: data.title };
+          }
+          return service;
+        });
+        setIncidents(updatedServices);
+      }
+    });
+    eventSource.addEventListener('incidentDeleted', (event) => {
+      if(orgIdentifier) {
+        const data = JSON.parse(event.data);
+        const isMsgForCurrentOrg = data.orgIdentifier?.toLowerCase() === orgIdentifier.toLowerCase();
+        if (!isMsgForCurrentOrg) return;
+        const updatedIncidents = incidents.filter((service) => service.uuid !== data.uuid);
+        setIncidents(updatedIncidents);
+      }
+    });
+    eventSource.addEventListener('incidentUpdateCreated', (event) => {
+      if(orgIdentifier) {
+        const data = JSON.parse(event.data);
+        const isMsgForCurrentOrg = data.orgIdentifier?.toLowerCase() === orgIdentifier.toLowerCase();
+        if (!isMsgForCurrentOrg) return;
+        const updatedIncidents = incidents.map((service) => {
+          if (service.uuid === data.incidentIdentifier) {
+            return { uuid: data.incidentIdentifier, title: data.title, IncidentUpdates: [...(service.IncidentUpdates || []), { uuid: data.uuid, message: data.message, createdAt: data.createdAt }] };
+          }
+          return service;
+        });
+        setIncidents(updatedIncidents);
+      }
+    });
+    eventSource.addEventListener('incidentUpdateUpdated', (event) => {
+      if(orgIdentifier) {
+        const data = JSON.parse(event.data);
+        const isMsgForCurrentOrg = data.orgIdentifier?.toLowerCase() === orgIdentifier.toLowerCase();
+        if (!isMsgForCurrentOrg) return;
+        const updatedIncidents = incidents.map((service) => {
+          if (service.uuid === data.incidentIdentifier) {
+            const updatedIncidentUpdates = (service.IncidentUpdates || []).map((incidentUpdate) => {
+              if (incidentUpdate.uuid === data.uuid) {
+                return { uuid: data.uuid, message: data.message, createdAt: data.createdAt };
+              }
+              return incidentUpdate;
+            });
+            return { uuid: data.incidentIdentifier, title: data.title, IncidentUpdates: updatedIncidentUpdates };
+          }
+          return service;
+        });
+        setIncidents(updatedIncidents);
+      }
+    });
+    eventSource.addEventListener('incidentUpdateDeleted', (event) => {
+      if(orgIdentifier) {
+        const data = JSON.parse(event.data);
+        const isMsgForCurrentOrg = data.orgIdentifier?.toLowerCase() === orgIdentifier.toLowerCase();
+        if (!isMsgForCurrentOrg) return;
+        const updatedIncidents = incidents.map((service) => {
+          if (service.uuid === data.incidentIdentifier) {
+            const updatedIncidentUpdates = (service.IncidentUpdates || []).filter((incidentUpdate) => incidentUpdate.uuid !== data.uuid);
+            return { uuid: data.incidentIdentifier, title: data.title, IncidentUpdates: updatedIncidentUpdates };
+          }
+          return service;
+        });
+        setIncidents(updatedIncidents);
+      }
+    });
+
+    return () => {
+      eventSource.close();
+    }
 
   }, [serviceIdentifier, setIncidents, navigate]);
 
