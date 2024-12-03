@@ -72,7 +72,7 @@ VITE_APP_URL=<YOUR-FRONTEND-URL>
 
 ## Additional Development Information
  - Fast-tracked development by using a monorepo structure
- - Fast-tracked development by using LLMs like Bolt.new, GPT-3, Claude 3.5 Sonnet, etc
+ - Fast-tracked development by using LLMs like Bolt.new, GPT-4o, Claude 3.5 Sonnet, Github Copilot, to name a few.
 
 ## Available Features
 1. Public view page for real-time service status updates
