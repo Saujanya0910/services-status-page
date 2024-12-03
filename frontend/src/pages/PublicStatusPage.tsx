@@ -87,9 +87,9 @@ export function PublicStatusPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-start">
           <div className="text-left">
-            <h1 className="text-3xl font-bold text-gray-900">Welcome to {capitalize(organization.name)}'s Status Page</h1>
+            <h1 className="text-3xl font-bold text-gray-900">Welcome to {capitalize(organization.name || orgIdentifier)}'s Status Page</h1>
             <p className="mt-3 text-xl text-gray-500">
-              Below you'll find status information for each of {capitalize(organization.name)}'s products and services.
+              Below you'll find status information for each of {capitalize(organization.name || orgIdentifier)}'s products and services.
             </p>
           </div>
           <div className="text-right">

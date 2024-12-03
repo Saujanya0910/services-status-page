@@ -20,9 +20,6 @@ const handleSSE = (req, res) => {
 };
 
 const sendEvent = (event, data) => {
-  console.log('Sending event', event);
-  console.log('Sending data', data);
-
   clients.forEach(client => {
     client.write(`event: ${event}\n`);
     client.write(`data: ${JSON.stringify(data)}\n\n`);

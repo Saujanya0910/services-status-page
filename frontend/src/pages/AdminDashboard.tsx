@@ -21,9 +21,10 @@ export function AdminDashboard() {
 
   useEffect(() => {
     if (!currentUser) {
-      navigate('/');
-    } else if(currentUser?.Organization?.name !== orgIdentifier) {
-      navigate(`/${currentUser.Organization?.name}/manage`);
+      return navigate('/');
+    }
+    if(currentUser?.Organization?.name !== orgIdentifier) {
+      return navigate(`/${currentUser.Organization?.name}/manage`);
     }
   }, [currentUser, orgIdentifier]);
 

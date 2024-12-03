@@ -82,7 +82,7 @@ export const fetchIncidents = (serviceIdentifier: string): Promise<Partial<Incid
  * @param orgIdentifier 
  */
 export const fetchIncidentsByOrg = async (orgIdentifier: string): Promise<Partial<Incident>[]> => {
-  const response = await axiosInstance.get(`/api/public/org/${orgIdentifier}/incidents`);
+  const response = await axiosInstance.get(`/api/org/${orgIdentifier}/incidents`);
   return response.data;
 }
 

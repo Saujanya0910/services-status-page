@@ -4,6 +4,8 @@ const { sequelize } = require('./models');
 const routes = require('./routes');
 const pkgJson = require('../package.json');
 const cors = require('cors');
+const morgan = require('morgan');
+
 process.env.NODE_ENV = pkgJson.config.NODE_ENV;
 
 dotenv.config();
@@ -16,6 +18,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(express.json());
+app.use(morgan('short')); // Add HTTP request logging
 
 app.use('/api', routes);
 
