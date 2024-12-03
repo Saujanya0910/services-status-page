@@ -11,7 +11,7 @@ process.env.NODE_ENV = pkgJson.config.NODE_ENV;
 dotenv.config();
 
 const app = express();
-const PORT = process.env.APP_PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
 const corsOptions = {
   origin: process.env.APP_CORS_ORIGIN ? process.env.APP_CORS_ORIGIN.split(',').filter(Boolean) : '*'
