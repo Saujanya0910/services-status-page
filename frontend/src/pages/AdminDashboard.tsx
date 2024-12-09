@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import useStore from '../store';
 import { ServiceCard } from '../components/ServiceCard';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { ServiceDialog } from '../components/dialogs/ServiceDialog';
 import { Service } from '@/types';
@@ -15,7 +15,8 @@ export function AdminDashboard() {
   const navigate = useNavigate();
   const { orgIdentifier } = useParams();
   const [isLoading, setIsLoading] = useState({
-    service: false
+    service: false,
+    initialData: true
   });
 
   useEffect(() => {
@@ -32,10 +33,20 @@ export function AdminDashboard() {
   }, [currentUser, orgIdentifier]);
 
   useEffect(() => {
-    if (currentUser?.Organization?.name) {
-      fetchServices(currentUser.Organization.name);
-      fetchIncidents(currentUser?.Organization?.name);
+    async function loadData() {
+      if (currentUser?.Organization?.name) {
+        try {
+          setIsLoading(prev => ({ ...prev, initialData: true }));
+          await Promise.all([
+            fetchServices(currentUser.Organization.name),
+            fetchIncidents(currentUser.Organization.name)
+          ]);
+        } finally {
+          setIsLoading(prev => ({ ...prev, initialData: false }));
+        }
+      }
     }
+    loadData();
   }, [currentUser?.Organization?.name, fetchServices, fetchIncidents]);
 
   const handleAddOrUpdateService = async (service: Service) => {
@@ -63,6 +74,15 @@ export function AdminDashboard() {
   const handleDeleteService = (serviceId: string) => {
     deleteService(serviceId);
   };
+
+  if (isLoading.initialData) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+        <p className="text-gray-500">Loading services...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

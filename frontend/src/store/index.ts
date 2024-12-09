@@ -119,7 +119,7 @@ const useStore = create(
         set((state) => ({
           incidents: state.incidents.map((incident) => ({
             ...incident,
-            IncidentUpdates: [...(incident.IncidentUpdates || []), update],
+            IncidentUpdates: incident.uuid === incidentIdentifier ? [...(incident.IncidentUpdates || []), update] : (incident.IncidentUpdates || []),
           })),
         }))
       },
