@@ -43,7 +43,7 @@ export const fetchOrganizations = async (searchTerm: string = ''): Promise<Parti
  * @param orgIdentifier 
  */
 export const fetchServices = (orgIdentifier: string): Promise<Partial<Service>[]> => {
-  return axiosInstance.get(`/api/public/org/${orgIdentifier}/services`).then(response => response.data);
+  return axiosInstance.get(`/api/public/org/${encodeURIComponent(orgIdentifier)}/services`).then(response => response.data);
 };
 
 /**
@@ -55,7 +55,7 @@ export const fetchService = (serviceIdentifier: string): Promise<Partial<Service
 };
 
 export const createService = async (orgIdentifier: string, service: Service): Promise<Partial<Service>> => {
-  const response = await axiosInstance.post(`/api/org/${orgIdentifier}/service`, service);
+  const response = await axiosInstance.post(`/api/org/${encodeURIComponent(orgIdentifier)}/service`, service);
   return response.data;
 }
 
@@ -82,7 +82,7 @@ export const fetchIncidents = (serviceIdentifier: string): Promise<Partial<Incid
  * @param orgIdentifier 
  */
 export const fetchIncidentsByOrg = async (orgIdentifier: string): Promise<Partial<Incident>[]> => {
-  const response = await axiosInstance.get(`/api/org/${orgIdentifier}/incidents`);
+  const response = await axiosInstance.get(`/api/org/${encodeURIComponent(orgIdentifier)}/incidents`);
   return response.data;
 }
 
@@ -136,7 +136,7 @@ export const fetchOrganizationByInviteCode = async (inviteCode: string): Promise
  * @param orgIdentifier 
  */
 export const fetchInviteCode = (orgIdentifier: string): Promise<Partial<Organization>> => {
-  return axiosInstance.get(`/api/org/${orgIdentifier}/invite-code`).then(response => response.data);
+  return axiosInstance.get(`/api/org/${encodeURIComponent(orgIdentifier)}/invite-code`).then(response => response.data);
 };
 
 /**
@@ -144,7 +144,7 @@ export const fetchInviteCode = (orgIdentifier: string): Promise<Partial<Organiza
  * @param orgIdentifier 
  */
 export const fetchUsers = (orgIdentifier: string): Promise<User[]> => {
-  return axiosInstance.get(`/api/org/${orgIdentifier}/members`).then(response => response.data);
+  return axiosInstance.get(`/api/org/${encodeURIComponent(orgIdentifier)}/members`).then(response => response.data);
 };
 
 /**
@@ -152,5 +152,5 @@ export const fetchUsers = (orgIdentifier: string): Promise<User[]> => {
  * @param orgIdentifier 
  */
 export const regenerateInviteCode = (orgIdentifier: string): Promise<{ inviteCode: string }> => {
-  return axiosInstance.post(`/api/org/${orgIdentifier}/regenerate-invite-code`).then(response => response.data);
+  return axiosInstance.post(`/api/org/${encodeURIComponent(orgIdentifier)}/regenerate-invite-code`).then(response => response.data);
 };

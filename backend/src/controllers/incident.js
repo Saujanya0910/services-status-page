@@ -17,8 +17,8 @@ const getIncidentsByOrg = async (req, res) => {
     const organization = await Organization.findOne({
       where: {
         [Op.or]: [
-          { uuid: orgIdentifier },
-          { name: orgIdentifier }
+          { uuid: decodeURIComponent(orgIdentifier.trim().toLowerCase()) },
+          { name: { [Op.like]: `%${decodeURIComponent(orgIdentifier.trim().toLowerCase())}%` } }
         ]
       },
       attributes: { exclude: ['id', 'createdBy', 'createdAt', 'updatedAt', 'organizationId'] },

@@ -149,7 +149,7 @@ const getOrgByIdentifier = async (req, res) => {
       attributes: ['uuid', 'name', 'createdAt'],
       where: {
         [Op.or]: [
-          { uuid: orgIdentifier.trim() },
+          { uuid: decodeURIComponent(orgIdentifier.trim()) },
           { name: { [Op.like]: `%${decodeURIComponent(orgIdentifier.trim().toLowerCase())}%` } }
         ]
       },
@@ -206,8 +206,8 @@ const getMembersByOrg = async (req, res) => {
     const organization = await Organization.findOne({
       where: {
         [Op.or]: [
-          { uuid: orgIdentifier.trim() },
-          { name: { [Op.like]: `%${orgIdentifier.trim().toLowerCase()}%` } }
+          { uuid: decodeURIComponent(orgIdentifier.trim()) },
+          { name: { [Op.like]: `%${decodeURIComponent(orgIdentifier.trim().toLowerCase())}%` } }
         ]
       },
       attributes: { exclude: ['id', 'createdBy', 'createdAt', 'updatedAt', 'organizationId'] },
@@ -246,8 +246,8 @@ const getOrgInviteCode = async (req, res) => {
     const organization = await Organization.findOne({ 
       where: {
         [Op.or]: [
-          { uuid: orgIdentifier.trim() },
-          { name: { [Op.like]: `%${orgIdentifier.trim().toLowerCase()}%` } }
+          { uuid: decodeURIComponent(orgIdentifier.trim()) },
+          { name: { [Op.like]: `%${decodeURIComponent(orgIdentifier.trim().toLowerCase())}%` } }
         ],
         isActive: true
       },
@@ -281,8 +281,8 @@ const regenerateOrgInviteCode = async (req, res) => {
     const organization = await Organization.findOne({ 
       where: {
         [Op.or]: [
-          { uuid: orgIdentifier.trim() },
-          { name: { [Op.like]: `%${orgIdentifier.trim().toLowerCase()}%` } }
+          { uuid: decodeURIComponent(orgIdentifier.trim()) },
+          { name: { [Op.like]: `%${decodeURIComponent(orgIdentifier.trim().toLowerCase())}%` } }
         ],
         isActive: true
       },

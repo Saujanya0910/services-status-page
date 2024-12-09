@@ -17,8 +17,8 @@ const getServicesByOrg = async (req, res) => {
     const organization = await Organization.findOne({
       where: {
         [Op.or]: [
-          { uuid: orgIdentifier },
-          { name: { [Op.like]: `%${orgIdentifier.trim().toLowerCase()}%` } }
+          { uuid: decodeURIComponent(orgIdentifier.trim()) },
+          { name: { [Op.like]: `%${decodeURIComponent(orgIdentifier.trim().toLowerCase())}%` } }
         ],
         isActive: true
       },
@@ -143,7 +143,7 @@ const addService = async (req, res) => {
       return res.status(400).json({ error: 'Name, status, and orgIdentifier are required' });
     }
 
-    const organization = await Organization.findOne({ where: { uuid: orgIdentifier } });
+    const organization = await Organization.findOne({ where: { uuid: decodeURIComponent(orgIdentifier.trim().toLowerCase()) } });
     if (!organization) {
       return res.status(404).json({ error: 'Organization not found' });
     }
