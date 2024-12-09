@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useStore from '../store';
 import * as apiService from '../services/api';
 import debounce from 'lodash/debounce';
 import { capitalize } from 'lodash';
+import { useAuth0 } from '@auth0/auth0-react';
 
 export function CreateOrJoinOrg() {
   const [orgName, setOrgName] = useState('');
@@ -13,7 +14,17 @@ export function CreateOrJoinOrg() {
   const [inviteOrgName, setInviteOrgName] = useState('');
   const { currentUser, setCurrentUser } = useStore();
   const navigate = useNavigate();
-  const { orgIdentifier } = useParams();
+  const { loginWithRedirect, isAuthenticated } = useAuth0();
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (currentUser?.Organization) {
+        navigate(`/${currentUser.Organization.name}/manage`);
+      } else {
+        navigate('/create-or-join-org');
+      }
+    }
+  }, [isAuthenticated, navigate]);
 
   useEffect(() => {
     if(!currentUser) {
