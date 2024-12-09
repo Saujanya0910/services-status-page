@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store';
 import { format } from 'date-fns';
@@ -15,6 +16,7 @@ export function PublicStatusPage() {
   orgIdentifier = orgIdentifier ? decodeURIComponent(orgIdentifier) : '';
   const navigate = useNavigate();
   const { currentUser, services, organization, setServices, setOrganization, resetStatuses } = useStore();
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     if (!orgIdentifier) {
@@ -25,19 +27,27 @@ export function PublicStatusPage() {
     resetStatuses();
 
     const fetchData = async () => {
-      const [orgResponse, servicesResponse] = await Promise.all([
-        apiService.fetchOrganization(orgIdentifier),
-        apiService.fetchServices(orgIdentifier)
-      ]);
+      setIsLoading(true);
+      try {
+        const [orgResponse, servicesResponse] = await Promise.all([
+          apiService.fetchOrganization(orgIdentifier),
+          apiService.fetchServices(orgIdentifier)
+        ]);
 
-      if (!orgResponse) {
-        toast.error('Failed to fetch organization data');
-        navigate('/page-not-found');
-        return;
+        if (!orgResponse) {
+          toast.error('Failed to fetch organization data');
+          navigate('/page-not-found');
+          return;
+        }
+
+        setOrganization(orgResponse);
+        setServices(servicesResponse);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+        toast.error('Failed to fetch data');
+      } finally {
+        setIsLoading(false);
       }
-
-      setOrganization(orgResponse);
-      setServices(servicesResponse);
     };
 
     fetchData();
@@ -82,6 +92,19 @@ export function PublicStatusPage() {
       eventSource.close();
     };
   }, [orgIdentifier, navigate, setOrganization, setServices]);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+            <p className="text-gray-500">Loading organization status...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 py-12">
