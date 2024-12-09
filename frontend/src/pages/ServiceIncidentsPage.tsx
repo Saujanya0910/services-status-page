@@ -1,4 +1,5 @@
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 import * as apiService from '../services/api';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -12,7 +13,8 @@ import connectEventSource from '@/lib/server-sent-events';
 export function ServiceIncidentsPage() {
   const { orgIdentifier, serviceIdentifier } = useParams();
   const navigate = useNavigate();
-  const { services, incidents, setIncidents } = useStore();
+  const { services, incidents, setIncidents, resetStatuses } = useStore();
+  const [isLoading, setIsLoading] = useState(true);
   let service = services.find((s) => s.uuid === serviceIdentifier);
 
   useEffect(() => {
@@ -21,39 +23,33 @@ export function ServiceIncidentsPage() {
       return;
     }
 
-    const fetchService = async () => {
+    const fetchData = async () => {
+      resetStatuses();
+      setIsLoading(true);
       try {
-        const response = await apiService.fetchService(serviceIdentifier);
-        if (!response) {
-          toast.error('Failed to fetch service data');
-          navigate('/page-not-found');
-          return;
+        if (!service) {
+          const response = await apiService.fetchService(serviceIdentifier);
+          if (!response) {
+            toast.error('Failed to fetch service data');
+            navigate('/page-not-found');
+            return;
+          }
+          service = response;
         }
 
-        service = response;
-      } catch (error) {
-        console.error('Failed to fetch service:', error);
-        toast.error('Failed to fetch service data');
-        navigate('/page-not-found');
-      }
-    }
-
-    const fetchServiceIncidents = async () => {
-      try {
         const incidentsResponse = await apiService.fetchIncidents(serviceIdentifier);
         setIncidents(incidentsResponse);
       } catch (error) {
         if(error && (error as any).status !== 404) {
-          console.error('Failed to fetch incidents:', error);
-          toast.error('Failed to fetch incidents');
+          console.error('Failed to fetch data:', error);
+          toast.error('Failed to fetch data');
         }
+      } finally {
+        setIsLoading(false);
       }
     };
-    
-    if(!service) {
-      fetchService();
-    }
-    fetchServiceIncidents();
+
+    fetchData();
 
     // Add event listeners for specific events
     const eventSource = connectEventSource();
@@ -145,8 +141,21 @@ export function ServiceIncidentsPage() {
 
   }, [serviceIdentifier, setIncidents, navigate]);
 
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col items-center justify-center min-h-[400px] space-y-4">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-500" />
+            <p className="text-gray-500">Loading service details...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (!service) {
-    return <div>Loading...</div>;
+    return null;
   }
 
   return (
