@@ -24,7 +24,6 @@ export function ServiceIncidentsPage() {
     }
 
     const fetchData = async () => {
-      resetStatuses();
       setIsLoading(true);
       try {
         if (!service) {
