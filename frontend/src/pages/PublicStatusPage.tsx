@@ -11,7 +11,8 @@ import { Chip } from '../components/ui/chip';
 import connectEventSource from '@/lib/server-sent-events';
 
 export function PublicStatusPage() {
-  const { orgIdentifier } = useParams();
+  let { orgIdentifier } = useParams();
+  orgIdentifier = orgIdentifier ? decodeURIComponent(orgIdentifier) : '';
   const navigate = useNavigate();
   const { currentUser, services, organization, setServices, setOrganization, resetStatuses } = useStore();
 
@@ -96,7 +97,7 @@ export function PublicStatusPage() {
             {
               currentUser && currentUser.Organization && (currentUser.Organization.name?.toLowerCase() === orgIdentifier?.toLowerCase()) ? (
                 <button
-                  onClick={() => navigate(`/${currentUser.Organization?.name}/manage`)}
+                  onClick={() => navigate(`/${encodeURIComponent(currentUser.Organization?.name ?? '')}/manage`)}
                   className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                 >
                   Manage Organization
@@ -124,7 +125,7 @@ export function PublicStatusPage() {
           ) : (
             <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {services.map((service) => (
-                <Card key={service.uuid} onClick={() => navigate(`/${orgIdentifier}/service/${service.uuid}/incidents`)} className="cursor-pointer">
+                <Card key={service.uuid} onClick={() => navigate(`/${encodeURIComponent(orgIdentifier)}/service/${service.uuid}/incidents`)} className="cursor-pointer">
                   <CardHeader>
                     <CardTitle>{service.name}</CardTitle>
                     <CardDescription>{service.description}</CardDescription>

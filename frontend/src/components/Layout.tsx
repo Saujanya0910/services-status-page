@@ -28,7 +28,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex">
               <div
                 className="flex-shrink-0 flex items-center cursor-pointer"
-                onClick={() => navigate(`/${orgIdentifier ?? ''}/status`)}
+                onClick={() => navigate(`/${encodeURIComponent(orgIdentifier ?? '')}/status`)}
               >
               <Bell className="h-8 w-8 text-indigo-600" />
               <span className="ml-2 text-xl font-bold text-gray-900">StatusPage</span>
@@ -40,7 +40,7 @@ export function Layout({ children }: LayoutProps) {
                 <button
                   type="button"
                   className="p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100"
-                  onClick={() => navigate(`/${orgIdentifier ?? ''}/manage/settings`)}
+                  onClick={() => navigate(`/${encodeURIComponent(orgIdentifier ?? '') ?? ''}/manage/settings`)}
                 >
                   <Settings className="h-6 w-6" />
                 </button>

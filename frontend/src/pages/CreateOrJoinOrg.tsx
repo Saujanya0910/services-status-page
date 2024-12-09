@@ -14,12 +14,12 @@ export function CreateOrJoinOrg() {
   const [inviteOrgName, setInviteOrgName] = useState('');
   const { currentUser, setCurrentUser } = useStore();
   const navigate = useNavigate();
-  const { loginWithRedirect, isAuthenticated } = useAuth0();
+  const { isAuthenticated } = useAuth0();
 
   useEffect(() => {
     if (isAuthenticated) {
       if (currentUser?.Organization) {
-        navigate(`/${currentUser.Organization.name}/manage`);
+        navigate(`/${encodeURIComponent(currentUser.Organization.name ?? '')}/manage`);
       } else {
         navigate('/create-or-join-org');
       }
@@ -33,7 +33,6 @@ export function CreateOrJoinOrg() {
   }, [currentUser]);
 
   useEffect(() => {
-    // resetAllState();
     const checkOrgExists = debounce(async (name) => {
       try {
         const org = await apiService.fetchOrganization(name);
@@ -63,7 +62,7 @@ export function CreateOrJoinOrg() {
     try {
       const organization = await apiService.createOrganization({ name: orgName, userIdentifier: currentUser.uuid || '' });
       setCurrentUser({ ...currentUser, Organization: organization });
-      navigate(`/${organization.name}/manage`);
+      navigate(`/${encodeURIComponent(organization.name ?? '')}/manage`);
     } catch (error) {
       console.error('Failed to create organization:', error);
     }
@@ -90,7 +89,7 @@ export function CreateOrJoinOrg() {
         return;
       }
       const organization = await apiService.joinOrganization({ inviteCode, userIdentifier: currentUser.uuid });
-      navigate(`/${organization.name}/manage`);
+      navigate(`/${encodeURIComponent(organization.name ?? '')}/manage`);
     } catch (error) {
       console.error('Failed to join organization:', error);
     }

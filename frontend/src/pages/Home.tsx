@@ -63,7 +63,7 @@ export function Home() {
             <div
               key={org.uuid}
               className="p-4 border rounded-lg cursor-pointer hover:bg-gray-100"
-              onClick={() => navigate(`/${org.name}/status`)}
+              onClick={() => org.name && navigate(`/${encodeURIComponent(org.name)}/status`)}
             >
               <h3 className="text-xl font-bold">{org.name}</h3>
             </div>

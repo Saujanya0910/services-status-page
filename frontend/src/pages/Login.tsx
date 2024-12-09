@@ -7,12 +7,11 @@ export function Login() {
   const { loginWithRedirect, isAuthenticated } = useAuth0();
   const { currentUser } = useStore();
   const navigate = useNavigate();
-  const { orgIdentifier } = useParams();
 
   useEffect(() => {
     if (isAuthenticated) {
       if (currentUser?.Organization) {
-        navigate(`/${currentUser.Organization.name}/manage`);
+        navigate(`/${encodeURIComponent(currentUser.Organization.name ?? '')}/manage`);
       } else {
         navigate('/create-or-join-org');
       }

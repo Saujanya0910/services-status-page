@@ -152,7 +152,7 @@ export function ServiceIncidentsPage() {
   return (
     <div className="min-h-screen bg-gray-50 py-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <Button onClick={() => navigate(`/${orgIdentifier}/status`)} className="mb-4">Back to Status Page</Button>
+        <Button onClick={() => navigate(`/${encodeURIComponent(orgIdentifier ?? '')}/status`)} className="mb-4">Back to Status Page</Button>
         <div className="bg-white shadow overflow-hidden sm:rounded-lg mb-8">
           <div className="px-6 py-8 sm:px-8">
             <h2 className="text-2xl font-bold text-gray-900">{service.name}</h2>

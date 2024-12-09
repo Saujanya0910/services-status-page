@@ -40,7 +40,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       };
       setCurrentUser(mockUser);
       saveUserToBackend(mockUser);
-      navigate(`/${organization.name}/manage`);
+      if (organization.name) {
+        navigate(`/${encodeURIComponent(organization.name)}/manage`);
+      }
     }
   }, [auth0Authenticated, user, setCurrentUser, navigate, organization.name]);
 
