@@ -129,7 +129,7 @@ export function PublicStatusPage() {
               <p className="text-sm text-gray-500">
                 Org admin or member?{' '}
                 <span
-                  onClick={() => organization.name && navigate(`/${encodeURIComponent(orgIdentifier)}/login`)}
+                  onClick={() => orgIdentifier && navigate(`/${encodeURIComponent(orgIdentifier)}/login`)}
                   className="text-blue-500 hover:underline cursor-pointer"
                 >
                   Login here to manage
