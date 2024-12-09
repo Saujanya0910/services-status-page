@@ -43,8 +43,10 @@ export function PublicStatusPage() {
         setOrganization(orgResponse);
         setServices(servicesResponse);
       } catch (error) {
-        console.error('Failed to fetch data:', error);
-        toast.error('Failed to fetch data');
+        if(error && (error as any).status !== 404) {
+          console.error('Failed to fetch data:', error);
+          toast.error('Failed to fetch data');
+        }
       } finally {
         setIsLoading(false);
       }
