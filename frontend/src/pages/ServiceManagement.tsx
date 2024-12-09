@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import useStore from '../store';
@@ -16,6 +17,12 @@ export function ServiceManagement() {
   const [isIncidentUpdateDialogOpen, setIsIncidentUpdateDialogOpen] = useState(false);
   const [selectedIncident, setSelectedIncident] = useState<Incident | null>(null);
   const [selectedIncidentUpdate, setSelectedIncidentUpdate] = useState<IncidentUpdate | null>(null);
+  const [isLoading, setIsLoading] = useState({
+    incident: false,
+    incidentUpdate: false,
+    deleteIncident: new Set<string>(),
+    deleteUpdate: new Set<string>()
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,7 +30,7 @@ export function ServiceManagement() {
       return navigate('/');
     } 
     if(currentUser?.Organization?.name !== orgIdentifier) {
-      return navigate(`/${currentUser.Organization?.name}/manage`);
+      return navigate(`/${encodeURIComponent(currentUser.Organization?.name ?? '')}/manage`);
     }
   }, [currentUser, orgIdentifier]);
 
@@ -34,6 +41,7 @@ export function ServiceManagement() {
   }, [serviceIdentifier, fetchIncidents]);
 
   const handleAddOrUpdateIncident = async (incident: Incident) => {
+    setIsLoading(prev => ({ ...prev, incident: true }));
     try {
       if (selectedIncident) {
         await updateIncident(incident);
@@ -45,12 +53,14 @@ export function ServiceManagement() {
     } catch (error) {
       toast.error('Failed to save incident');
     } finally {
+      setIsLoading(prev => ({ ...prev, incident: false }));
       setIsIncidentDialogOpen(false);
       setSelectedIncident(null);
     }
   };
 
   const handleAddOrUpdateIncidentUpdate = async (incidentIdentifier: string, update: IncidentUpdate) => {
+    setIsLoading(prev => ({ ...prev, incidentUpdate: true }));
     try {
       if(update.uuid) {
         await updateIncidentUpdate(incidentIdentifier, update);
@@ -61,29 +71,48 @@ export function ServiceManagement() {
     } catch (error) {
       toast.error('Failed to save incident update');
     } finally {
+      setIsLoading(prev => ({ ...prev, incidentUpdate: false }));
       setIsIncidentUpdateDialogOpen(false);
       setSelectedIncidentUpdate(null);
     }
   };
 
   const handleDeleteIncident = async (incidentId: string) => {
+    setIsLoading(prev => ({
+      ...prev,
+      deleteIncident: new Set(prev.deleteIncident).add(incidentId)
+    }));
     try {
       await deleteIncident(incidentId);
       toast.success('Incident deleted successfully');
     } catch (error) {
       toast.error('Failed to delete incident');
     } finally {
+      setIsLoading(prev => {
+        const newSet = new Set(prev.deleteIncident);
+        newSet.delete(incidentId);
+        return { ...prev, deleteIncident: newSet };
+      });
       setSelectedIncident(null);
     }
   };
 
   const handleDeleteIncidentUpdate = async (updateId: string) => {
+    setIsLoading(prev => ({
+      ...prev,
+      deleteUpdate: new Set(prev.deleteUpdate).add(updateId)
+    }));
     try {
       await deleteIncidentUpdate(updateId);
       toast.success('Incident update deleted successfully');
     } catch (error) {
       toast.error('Failed to delete incident update');
     } finally {
+      setIsLoading(prev => {
+        const newSet = new Set(prev.deleteUpdate);
+        newSet.delete(updateId);
+        return { ...prev, deleteUpdate: newSet };
+      });
       setSelectedIncidentUpdate(null);
     }
   };
@@ -97,7 +126,7 @@ export function ServiceManagement() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold text-gray-900">Manage Service Incidents for {capitalize(service?.name)}</h1>
-      <Button onClick={() => navigate(`/${orgIdentifier}/manage`)} className="mr-4">
+      <Button onClick={() => navigate(`/${encodeURIComponent(orgIdentifier ?? '')}/manage`)} className="mr-4">
         Back to Services
       </Button>
       <Button onClick={() => { setSelectedIncident(null); setIsIncidentDialogOpen(true); }}>
@@ -139,8 +168,18 @@ export function ServiceManagement() {
                     </span>
                   </div>
                   <div className="flex space-x-2">
-                    <Button onClick={() => { setSelectedIncident(incident); setIsIncidentDialogOpen(true); }}>Edit</Button>
-                    <Button onClick={() => incident.uuid && handleDeleteIncident(incident.uuid)}>Delete</Button>
+                    <Button 
+                      onClick={() => { setSelectedIncident(incident); setIsIncidentDialogOpen(true); }}
+                      disabled={isLoading.incident}
+                    >
+                      Edit
+                    </Button>
+                    <Button 
+                      onClick={() => incident.uuid && handleDeleteIncident(incident.uuid)}
+                      disabled={isLoading.deleteIncident.has(incident.uuid || '')}
+                    >
+                      {isLoading.deleteIncident.has(incident.uuid || '') ? 'Deleting...' : 'Delete'}
+                    </Button>
                   </div>
                 </div>
                 <div className="mt-4">
@@ -174,6 +213,7 @@ export function ServiceManagement() {
         incident={selectedIncident}
         onSave={handleAddOrUpdateIncident}
         serviceId={serviceIdentifier}
+        isLoading={isLoading.incident}
       />
       <IncidentUpdateDialog
         open={isIncidentUpdateDialogOpen}
@@ -181,6 +221,7 @@ export function ServiceManagement() {
         incidentUpdate={selectedIncidentUpdate}
         onSave={(updatedIncidentUpdate) => handleAddOrUpdateIncidentUpdate(selectedIncident?.uuid || '', updatedIncidentUpdate)}
         incidentId={selectedIncident?.uuid || ''}
+        isLoading={isLoading.incidentUpdate}
       />
     </div>
   );

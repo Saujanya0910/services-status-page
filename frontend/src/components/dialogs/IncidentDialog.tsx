@@ -9,9 +9,10 @@ interface IncidentDialogProps {
   incident: Incident | null;
   onSave: (incident: Incident) => void;
   serviceId: string | undefined;
+  isLoading?: boolean;
 }
 
-export function IncidentDialog({ open, onOpenChange, incident, onSave, serviceId }: IncidentDialogProps) {
+export function IncidentDialog({ open, onOpenChange, incident, onSave, isLoading = false }: IncidentDialogProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<Incident['status']>('investigating');
@@ -115,10 +116,17 @@ export function IncidentDialog({ open, onOpenChange, incident, onSave, serviceId
             </select>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={() => onOpenChange(false)}
+              disabled={isLoading}
+            >
               Cancel
             </Button>
-            <Button type="submit">{incident ? 'Update Incident' : 'Add Incident'}</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? 'Saving...' : (incident ? 'Update Incident' : 'Add Incident')}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

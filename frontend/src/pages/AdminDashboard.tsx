@@ -14,6 +14,9 @@ export function AdminDashboard() {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const navigate = useNavigate();
   const { orgIdentifier } = useParams();
+  const [isLoading, setIsLoading] = useState({
+    service: false
+  });
 
   useEffect(() => {
     resetStatuses();
@@ -24,7 +27,7 @@ export function AdminDashboard() {
       return navigate('/');
     }
     if(currentUser?.Organization?.name !== orgIdentifier) {
-      return navigate(`/${currentUser.Organization?.name}/manage`);
+      return navigate(`/${encodeURIComponent(currentUser.Organization?.name ?? '')}/manage`);
     }
   }, [currentUser, orgIdentifier]);
 
@@ -36,6 +39,7 @@ export function AdminDashboard() {
   }, [currentUser?.Organization?.name, fetchServices, fetchIncidents]);
 
   const handleAddOrUpdateService = async (service: Service) => {
+    setIsLoading(prev => ({ ...prev, service: true }));
     if(currentUser?.Organization?.uuid) {
       try {
         if (selectedService) {
@@ -43,12 +47,13 @@ export function AdminDashboard() {
             await updateService(service);
           }
         } else {
-          addService(currentUser?.Organization?.uuid, service);
+          await addService(currentUser?.Organization?.uuid, service);
         }
       } catch (error) {
         console.error('Failed to save service:', error);
         toast.error('Failed to save service');
       } finally {
+        setIsLoading(prev => ({ ...prev, service: false }));
         setSelectedService(null);
         setIsServiceDialogOpen(false);
       }
@@ -80,7 +85,7 @@ export function AdminDashboard() {
             <ServiceCard 
               key={service.uuid} 
               service={service} 
-              onClick={() => navigate(`/${currentUser?.Organization?.name}/manage/service/${service.uuid}`)}
+              onClick={() => navigate(`/${encodeURIComponent(currentUser?.Organization?.name ?? '')}/manage/service/${service.uuid}`)}
               onEdit={() => { setSelectedService(service); setIsServiceDialogOpen(true); }}
               onDelete={() => service.uuid && handleDeleteService(service.uuid)}
               onUpdateStatus={updateServiceStatus}
@@ -94,6 +99,7 @@ export function AdminDashboard() {
         onOpenChange={setIsServiceDialogOpen}
         service={selectedService}
         onSave={handleAddOrUpdateService}
+        isLoading={isLoading.service}
       />
     </div>
   );

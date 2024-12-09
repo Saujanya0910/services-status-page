@@ -8,9 +8,10 @@ interface ServiceDialogProps {
   onOpenChange: (open: boolean) => void;
   service: Service | null;
   onSave: (service: Service) => void;
+  isLoading?: boolean;
 }
 
-export function ServiceDialog({ open, onOpenChange, service, onSave }: ServiceDialogProps) {
+export function ServiceDialog({ open, onOpenChange, service, onSave, isLoading = false }: ServiceDialogProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [status, setStatus] = useState<Service['status']>('operational');
@@ -89,10 +90,16 @@ export function ServiceDialog({ open, onOpenChange, service, onSave }: ServiceDi
             </select>
           </div>
           <DialogFooter>
-            <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button type="submit">{service ? 'Update Service' : 'Add Service'}</Button>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? (
+                service ? 'Updating...' : 'Adding...'
+              ) : (
+                service ? 'Update Service' : 'Add Service'
+              )}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>

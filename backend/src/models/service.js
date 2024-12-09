@@ -33,7 +33,7 @@ module.exports = (sequelize) => {
       }
     },
     status: {
-      type: DataTypes.ENUM('operational', 'degraded', 'partial_outage', 'major_outage'),
+      type: DataTypes.ENUM('operational', 'down', 'degraded', 'partial_outage', 'major_outage'),
       allowNull: false,
     },
     createdAt: {

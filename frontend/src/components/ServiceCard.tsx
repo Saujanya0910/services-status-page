@@ -14,10 +14,10 @@ interface ServiceCardProps {
 export function ServiceCard({ service, onClick, onEdit, onDelete, onUpdateStatus }: ServiceCardProps) {
   return (
     <div className="bg-white shadow rounded-lg p-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center hover:underline" onClick={onClick}>
-          <div className="hover:underline">
-            <h3 className="text-lg font-medium text-gray-900">{service.name}</h3>
+      <div className="flex justify-between">
+        <div className="flex items-center" onClick={onClick}>
+          <div className="">
+            <h3 className="text-lg font-medium text-gray-900 hover:underline cursor-pointer">{service.name}</h3>
             <div className="mt-2">
               <Chip status={
                 service.status === 'partial_outage' ? 'degraded' : 
@@ -29,7 +29,7 @@ export function ServiceCard({ service, onClick, onEdit, onDelete, onUpdateStatus
             </div>
           </div>
         </div>
-        <span className="text-sm text-gray-500 hover:underline">
+        <span className="text-sm text-gray-500 hover:underline mt-1 text-right">
           Updated {format(service.updatedAt || new Date(), 'MMM d, yyyy HH:mm')}
         </span>
       </div>
