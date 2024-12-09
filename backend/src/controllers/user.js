@@ -49,6 +49,7 @@ const createOrUpdateUser = async (req, res) => {
       include: [{
         model: Organization,
         attributes: ['uuid', 'name'],
+        where: { isActive: true },
         required: false
       }]
     });
@@ -60,7 +61,8 @@ const createOrUpdateUser = async (req, res) => {
           [Op.or]: [
             { uuid: orgIdentifier },
             { name: { [Op.like]: `%${orgIdentifier.trim().toLowerCase()}%` } }
-          ]
+          ],
+          isActive: true
         }
       })
     }
