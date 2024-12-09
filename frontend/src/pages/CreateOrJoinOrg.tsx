@@ -19,7 +19,7 @@ export function CreateOrJoinOrg() {
   useEffect(() => {
     if (isAuthenticated) {
       if (currentUser?.Organization) {
-        navigate(`/${encodeURIComponent(currentUser.Organization.name ?? '')}/manage`);
+        currentUser.Organization.name && navigate(`/${encodeURIComponent(currentUser.Organization.name)}/manage`);
       } else {
         navigate('/create-or-join-org');
       }

@@ -15,7 +15,7 @@ export function Layout({ children }: LayoutProps) {
   const { logout } = useAuth0();
 
   const handleLogout = () => {
-    logout({ federated: true });
+    logout({ federated: true, returnTo: window.location.origin });
     resetAllState();
     navigate('/');
   };
