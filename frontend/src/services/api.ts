@@ -154,3 +154,15 @@ export const fetchUsers = (orgIdentifier: string): Promise<User[]> => {
 export const regenerateInviteCode = (orgIdentifier: string): Promise<{ inviteCode: string }> => {
   return axiosInstance.post(`/api/org/${encodeURIComponent(orgIdentifier)}/regenerate-invite-code`).then(response => response.data);
 };
+
+/**
+ * Health/availability check for the backend service
+ */
+export const checkHealth = async () => {
+  try {
+    const response = await axiosInstance.get(`/api/public/health`);
+    return response.status === 200;
+  } catch (error) {
+    return false;
+  }
+};

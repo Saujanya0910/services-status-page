@@ -15,8 +15,32 @@ import { ServiceManagement } from './pages/ServiceManagement';
 import { CreateOrJoinOrg } from './pages/CreateOrJoinOrg';
 import { AuthCallback } from './pages/AuthCallback';
 import { SettingsPage } from './pages/SettingsPage';
+import { useState, useEffect } from 'react';
+import { LoadingScreen } from './components/LoadingScreen';
+import { checkHealth } from './services/api';
 
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const checkServiceHealth = async () => {
+      const isHealthy = await checkHealth();
+      if (isHealthy) {
+        setIsLoading(false);
+        return;
+      }
+
+      // retry after 3 seconds if the service is not healthy
+      setTimeout(() => setIsLoading(false), 3000);
+    };
+
+    checkServiceHealth();
+  }, []);
+
+  if (isLoading) {
+    return <LoadingScreen />;
+  }
+
   return (
     <HelmetProvider>
       <Router>
