@@ -1,4 +1,5 @@
 const express = require('express');
+const systemRoutes = require('./system');
 const userRoutes = require('./user');
 const organizationRoutes = require('./organization');
 const serviceRoutes = require('./service');
@@ -9,6 +10,7 @@ const router = express.Router();
 
 router.get('/events', sseController.handleSSE);
 
+router.use('/public', systemRoutes);
 router.use(userRoutes);
 router.use(organizationRoutes);
 router.use(serviceRoutes);
