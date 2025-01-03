@@ -8,7 +8,7 @@ const sequelize = new Sequelize({
   password: process.env.DATABASE_PASSWORD,
   database: process.env.DATABASE_NAME,
   dialect: 'mysql',
-  logging: process.env.NODE_ENV === 'development' ? console.log : false
+  logging: process.env.NODE_ENV !== 'development' ? console.log : false
 });
 
 const models = {
